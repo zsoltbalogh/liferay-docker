@@ -12,7 +12,7 @@ function main {
 		exit 1
 	fi
 
-	check_utils curl docker java
+	check_utils curl docker java rsync
 
 	#
 	# Make temporary directory.
@@ -34,7 +34,25 @@ function main {
 
 	local local_build_dir=${1}
 
-	cp -a ${local_build_dir} ${temp_dir}/liferay
+	local last_char=${local_build_dir:length-1:1}
+	[[ $last_char != "/" ]] && local_build_dir="$local_build_dir/"; :
+
+	rsync -av ${local_build_dir} ${temp_dir}/liferay \
+		--exclude /data/document_library \
+		--exclude /data/elasticsearch* \
+		--exclude /data/opensocial \
+		--exclude /deploy \
+		--exclude /logs \
+		--exclude /osgi/modules \
+		--exclude /osgi/portal \
+		--exclude /osgi/state \
+		--exclude /osgi/static \
+		--exclude /*.properties \
+		--exclude /*.tar.gz \
+		--exclude /*.zip \
+		--exclude /*/logs/* \
+		--exclude /*/temp/* \
+		--exclude /*/work
 
 	#
 	# Configure Tomcat.
