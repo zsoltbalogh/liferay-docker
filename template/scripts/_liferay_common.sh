@@ -5,7 +5,7 @@ function execute_scripts_folder {
 	then
 		echo "[LIFERAY] Executing scripts in ${1}:"
 
-		for SCRIPT_NAME in ${1}/*
+		for SCRIPT_NAME in $(ls -1 ${1})
 		do
 			echo ""
 			echo "[LIFERAY] Executing ${SCRIPT_NAME}."
