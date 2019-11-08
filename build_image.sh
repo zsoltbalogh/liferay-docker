@@ -93,7 +93,7 @@ function download_trial_dxp_license {
 function main {
 	check_usage ${@}
 
-	set_container_variables
+	set_container_variables ${@}
 
 	make_temp_directory
 
@@ -111,10 +111,6 @@ function main {
 }
 
 function prepare_temp_directory {
-	RELEASE_FILE_NAME=${1##*/}
-
-	RELEASE_FILE_URL=${1}
-
 	if [[ ${RELEASE_FILE_URL} != http://mirrors.*.liferay.com* ]] && [[ ${RELEASE_FILE_URL} != http://release* ]]
 	then
 		RELEASE_FILE_URL=http://mirrors.lax.liferay.com/${RELEASE_FILE_URL}
@@ -160,6 +156,10 @@ function push_docker_images {
 }
 
 function set_container_variables {
+	RELEASE_FILE_NAME=${1##*/}
+
+	RELEASE_FILE_URL=${1}
+
 	if [[ ${RELEASE_FILE_NAME} == *-commerce-enterprise-* ]]
 	then
 		DOCKER_IMAGE_NAME="commerce-enterprise"
