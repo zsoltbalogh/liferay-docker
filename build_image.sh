@@ -2,6 +2,36 @@
 
 source ./_common.sh
 
+function build_bundle_docker_image {
+	DOCKER_IMAGE_TAGS=()
+
+	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
+	then
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}-bundle:${RELEASE_BRANCH}-${RELEASE_VERSION}-${RELEASE_HASH}")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}-bundle:${RELEASE_BRANCH}-$(date "${CURRENT_DATE}" "+%Y%m%d")")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}-bundle:${RELEASE_BRANCH}")
+	else
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}-bundle:${RELEASE_VERSION}-${TIMESTAMP}")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}-bundle:${RELEASE_VERSION}")
+	fi
+
+	local docker_image_tags_args=""
+
+	for docker_image_tag in "${DOCKER_IMAGE_TAGS[@]}"
+	do
+		docker_image_tags_args="${docker_image_tags_args} --tag ${docker_image_tag}"
+	done
+
+	docker build \
+		--build-arg LABEL_BUILD_DATE=$(date "${CURRENT_DATE}" "+%Y-%m-%dT%H:%M:%SZ") \
+		--build-arg LABEL_NAME="${LABEL_NAME}" \
+		--build-arg LABEL_VCS_REF=$(git rev-parse HEAD) \
+		--build-arg LABEL_VCS_URL="https://github.com/liferay/liferay-docker" \
+		--build-arg LABEL_VERSION="${LABEL_VERSION}" \
+		$(echo ${docker_image_tags_args}) \
+		${TEMP_DIR}/bundle-image
+}
+
 function build_docker_image {
 	DOCKER_IMAGE_TAGS=()
 
@@ -29,7 +59,7 @@ function build_docker_image {
 		--build-arg LABEL_VCS_URL="https://github.com/liferay/liferay-docker" \
 		--build-arg LABEL_VERSION="${LABEL_VERSION}" \
 		$(echo ${docker_image_tags_args}) \
-		${TEMP_DIR}
+		${TEMP_DIR}/image
 }
 
 function check_usage {
@@ -97,9 +127,11 @@ function main {
 
 	make_temp_directory
 
-	prepare_temp_directory ${@}
+	prepare_bundle_image_directory ${@}
 
-	prepare_tomcat
+	prepare_tomcat ${TEMP_DIR}/bundle-image
+
+	build_bundle_docker_image
 
 	download_trial_dxp_license
 
@@ -110,7 +142,7 @@ function main {
 	clean_up_temp_directory
 }
 
-function prepare_temp_directory {
+function prepare_bundle_image_directory {
 	if [[ ${RELEASE_FILE_URL} != http://mirrors.*.liferay.com* ]] && [[ ${RELEASE_FILE_URL} != http://release* ]]
 	then
 		RELEASE_FILE_URL=http://mirrors.lax.liferay.com/${RELEASE_FILE_URL}
@@ -135,14 +167,18 @@ function prepare_temp_directory {
 		curl -f -o ${release_dir}/${RELEASE_FILE_NAME} ${RELEASE_FILE_URL} || exit 2
 	fi
 
+	mkdir -p ${TEMP_DIR}/bundle-image
+
+	cp -r template-bundle/* ${TEMP_DIR}/bundle-image/
+
 	if [[ ${RELEASE_FILE_NAME} == *.7z ]]
 	then
-		7z x -O${TEMP_DIR} ${release_dir}/${RELEASE_FILE_NAME} || exit 3
+		7z x -O${TEMP_DIR}/bundle-image/ ${release_dir}/${RELEASE_FILE_NAME} || exit 3
 	else
-		unzip -q ${release_dir}/${RELEASE_FILE_NAME} -d ${TEMP_DIR}  || exit 3
+		unzip -q ${release_dir}/${RELEASE_FILE_NAME} -d ${TEMP_DIR}/bundle-image/  || exit 3
 	fi
 
-	mv ${TEMP_DIR}/liferay-* ${TEMP_DIR}/liferay
+	mv ${TEMP_DIR}/bundle-image/liferay-* ${TEMP_DIR}/bundle-image/liferay
 }
 
 function push_docker_images {

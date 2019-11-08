@@ -37,7 +37,7 @@ function main {
 
 	prepare_temp_directory ${@}
 
-	prepare_tomcat
+	prepare_tomcat ${TEMP_DIR}
 
 	build_docker_image ${@}
 
@@ -45,6 +45,8 @@ function main {
 }
 
 function prepare_temp_directory {
+	cp -r template/* ${TEMP_DIR}
+
 	cp -a ${1} ${TEMP_DIR}/liferay
 }
 
