@@ -7,12 +7,12 @@ function build_docker_image {
 
 	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
 	then
-		DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}-${release_version}-${release_hash}")
-		DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}-$(date "${CURRENT_DATE}" "+%Y%m%d")")
-		DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}:${RELEASE_BRANCH}-${RELEASE_VERSION}-${RELEASE_HASH}")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}:${RELEASE_BRANCH}-$(date "${CURRENT_DATE}" "+%Y%m%d")")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}:${RELEASE_BRANCH}")
 	else
-		DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_version}-${TIMESTAMP}")
-		DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_version}")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}-${TIMESTAMP}")
+		DOCKER_IMAGE_TAGS+=("liferay/${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}")
 	fi
 
 	local docker_image_tags_args=""
@@ -24,10 +24,10 @@ function build_docker_image {
 
 	docker build \
 		--build-arg LABEL_BUILD_DATE=$(date "${CURRENT_DATE}" "+%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg LABEL_NAME="${label_name}" \
+		--build-arg LABEL_NAME="${LABEL_NAME}" \
 		--build-arg LABEL_VCS_REF=$(git rev-parse HEAD) \
 		--build-arg LABEL_VCS_URL="https://github.com/liferay/liferay-docker" \
-		--build-arg LABEL_VERSION="${label_version}" \
+		--build-arg LABEL_VERSION="${LABEL_VERSION}" \
 		$(echo ${docker_image_tags_args}) \
 		${TEMP_DIR}
 }
@@ -160,25 +160,22 @@ function push_docker_images {
 }
 
 function set_container_variables {
-	local docker_image_name
-	local label_name
-
 	if [[ ${RELEASE_FILE_NAME} == *-commerce-enterprise-* ]]
 	then
-		docker_image_name="commerce-enterprise"
-		label_name="Liferay Commerce Enterprise"
+		DOCKER_IMAGE_NAME="commerce-enterprise"
+		LABEL_NAME="Liferay Commerce Enterprise"
 	elif [[ ${RELEASE_FILE_NAME} == *-commerce-* ]]
 	then
-		docker_image_name="commerce"
-		label_name="Liferay Commerce"
+		DOCKER_IMAGE_NAME="commerce"
+		LABEL_NAME="Liferay Commerce"
 	elif [[ ${RELEASE_FILE_NAME} == *-dxp-* ]] || [[ ${RELEASE_FILE_NAME} == *-private* ]]
 	then
-		docker_image_name="dxp"
-		label_name="Liferay DXP"
+		DOCKER_IMAGE_NAME="dxp"
+		LABEL_NAME="Liferay DXP"
 	elif [[ ${RELEASE_FILE_NAME} == *-portal-* ]]
 	then
-		docker_image_name="portal"
-		label_name="Liferay Portal"
+		DOCKER_IMAGE_NAME="portal"
+		LABEL_NAME="Liferay Portal"
 	else
 		echo "${RELEASE_FILE_NAME} is an unsupported release file name."
 
@@ -187,43 +184,43 @@ function set_container_variables {
 
 	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
 	then
-		docker_image_name=${docker_image_name}-snapshot
+		DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}-snapshot
 	fi
 
 	if [[ ${RELEASE_FILE_URL} == http://release* ]]
 	then
-		docker_image_name=${docker_image_name}-snapshot
+		DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}-snapshot
 	fi
 
-	local release_version=${RELEASE_FILE_URL%/*}
+	RELEASE_VERSION=${RELEASE_FILE_URL%/*}
 
-	release_version=${release_version##*/}
+	RELEASE_VERSION=${RELEASE_VERSION##*/}
 
 	if [[ ${RELEASE_FILE_URL} == http://release* ]]
 	then
-		release_version=${RELEASE_FILE_URL#*tomcat-}
-		release_version=${release_version%.*}
+		RELEASE_VERSION=${RELEASE_FILE_URL#*tomcat-}
+		RELEASE_VERSION=${RELEASE_VERSION%.*}
 	fi
 
-	local label_version=${release_version}
+	LABEL_VERSION=${RELEASE_VERSION}
 
 	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
 	then
-		local release_branch=${RELEASE_FILE_URL%/*}
+		RELEASE_BRANCH=${RELEASE_FILE_URL%/*}
 
-		release_branch=${release_branch%/*}
-		release_branch=${release_branch%-private*}
-		release_branch=${release_branch##*-}
+		RELEASE_BRANCH=${RELEASE_BRANCH%/*}
+		RELEASE_BRANCH=${RELEASE_BRANCH%-private*}
+		RELEASE_BRANCH=${RELEASE_BRANCH##*-}
 
-		local release_hash=$(cat ${TEMP_DIR}/liferay/.githash)
+		RELEASE_HASH=$(cat ${TEMP_DIR}/liferay/.githash)
 
-		release_hash=${release_hash:0:7}
+		RELEASE_HASH=${RELEASE_HASH:0:7}
 
-		if [[ ${release_branch} == master ]]
+		if [[ ${RELEASE_BRANCH} == master ]]
 		then
-			label_version="Master Snapshot on ${label_version} at ${release_hash}"
+			LABEL_VERSION="Master Snapshot on ${LABEL_VERSION} at ${RELEASE_HASH}"
 		else
-			label_version="${release_branch} Snapshot on ${label_version} at ${release_hash}"
+			LABEL_VERSION="${RELEASE_BRANCH} Snapshot on ${LABEL_VERSION} at ${RELEASE_HASH}"
 		fi
 	fi
 }
