@@ -93,7 +93,7 @@ function download_trial_dxp_license {
 function main {
 	check_usage ${@}
 
-	set_container_variables ${@}
+	set_image_variables ${@}
 
 	make_temp_directory
 
@@ -155,7 +155,7 @@ function push_docker_images {
 	fi
 }
 
-function set_container_variables {
+function set_image_variables {
 	RELEASE_FILE_NAME=${1##*/}
 
 	RELEASE_FILE_URL=${1}
