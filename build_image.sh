@@ -3,73 +3,6 @@
 source ./_common.sh
 
 function build_docker_image {
-	local docker_image_name
-	local label_name
-
-	if [[ ${RELEASE_FILE_NAME} == *-commerce-enterprise-* ]]
-	then
-		docker_image_name="commerce-enterprise"
-		label_name="Liferay Commerce Enterprise"
-	elif [[ ${RELEASE_FILE_NAME} == *-commerce-* ]]
-	then
-		docker_image_name="commerce"
-		label_name="Liferay Commerce"
-	elif [[ ${RELEASE_FILE_NAME} == *-dxp-* ]] || [[ ${RELEASE_FILE_NAME} == *-private* ]]
-	then
-		docker_image_name="dxp"
-		label_name="Liferay DXP"
-	elif [[ ${RELEASE_FILE_NAME} == *-portal-* ]]
-	then
-		docker_image_name="portal"
-		label_name="Liferay Portal"
-	else
-		echo "${RELEASE_FILE_NAME} is an unsupported release file name."
-
-		exit 1
-	fi
-
-	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
-	then
-		docker_image_name=${docker_image_name}-snapshot
-	fi
-
-	if [[ ${RELEASE_FILE_URL} == http://release* ]]
-	then
-		docker_image_name=${docker_image_name}-snapshot
-	fi
-
-	local release_version=${RELEASE_FILE_URL%/*}
-
-	release_version=${release_version##*/}
-
-	if [[ ${RELEASE_FILE_URL} == http://release* ]]
-	then
-		release_version=${RELEASE_FILE_URL#*tomcat-}
-		release_version=${release_version%.*}
-	fi
-
-	local label_version=${release_version}
-
-	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
-	then
-		local release_branch=${RELEASE_FILE_URL%/*}
-
-		release_branch=${release_branch%/*}
-		release_branch=${release_branch%-private*}
-		release_branch=${release_branch##*-}
-
-		local release_hash=$(cat ${TEMP_DIR}/liferay/.githash)
-
-		release_hash=${release_hash:0:7}
-
-		if [[ ${release_branch} == master ]]
-		then
-			label_version="Master Snapshot on ${label_version} at ${release_hash}"
-		else
-			label_version="${release_branch} Snapshot on ${label_version} at ${release_hash}"
-		fi
-	fi
-
 	DOCKER_IMAGE_TAGS=()
 
 	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
@@ -160,6 +93,8 @@ function download_trial_dxp_license {
 function main {
 	check_usage ${@}
 
+	set_container_variables
+
 	make_temp_directory
 
 	prepare_temp_directory ${@}
@@ -221,6 +156,75 @@ function push_docker_images {
 		do
 			docker push ${docker_image_tag}
 		done
+	fi
+}
+
+function set_container_variables {
+	local docker_image_name
+	local label_name
+
+	if [[ ${RELEASE_FILE_NAME} == *-commerce-enterprise-* ]]
+	then
+		docker_image_name="commerce-enterprise"
+		label_name="Liferay Commerce Enterprise"
+	elif [[ ${RELEASE_FILE_NAME} == *-commerce-* ]]
+	then
+		docker_image_name="commerce"
+		label_name="Liferay Commerce"
+	elif [[ ${RELEASE_FILE_NAME} == *-dxp-* ]] || [[ ${RELEASE_FILE_NAME} == *-private* ]]
+	then
+		docker_image_name="dxp"
+		label_name="Liferay DXP"
+	elif [[ ${RELEASE_FILE_NAME} == *-portal-* ]]
+	then
+		docker_image_name="portal"
+		label_name="Liferay Portal"
+	else
+		echo "${RELEASE_FILE_NAME} is an unsupported release file name."
+
+		exit 1
+	fi
+
+	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
+	then
+		docker_image_name=${docker_image_name}-snapshot
+	fi
+
+	if [[ ${RELEASE_FILE_URL} == http://release* ]]
+	then
+		docker_image_name=${docker_image_name}-snapshot
+	fi
+
+	local release_version=${RELEASE_FILE_URL%/*}
+
+	release_version=${release_version##*/}
+
+	if [[ ${RELEASE_FILE_URL} == http://release* ]]
+	then
+		release_version=${RELEASE_FILE_URL#*tomcat-}
+		release_version=${release_version%.*}
+	fi
+
+	local label_version=${release_version}
+
+	if [[ ${RELEASE_FILE_URL%} == */snapshot-* ]]
+	then
+		local release_branch=${RELEASE_FILE_URL%/*}
+
+		release_branch=${release_branch%/*}
+		release_branch=${release_branch%-private*}
+		release_branch=${release_branch##*-}
+
+		local release_hash=$(cat ${TEMP_DIR}/liferay/.githash)
+
+		release_hash=${release_hash:0:7}
+
+		if [[ ${release_branch} == master ]]
+		then
+			label_version="Master Snapshot on ${label_version} at ${release_hash}"
+		else
+			label_version="${release_branch} Snapshot on ${label_version} at ${release_hash}"
+		fi
 	fi
 }
 
