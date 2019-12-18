@@ -17,6 +17,8 @@ function clean_up_temp_directory {
 }
 
 function configure_tomcat {
+	enable_tomcat_ajp_connector
+
 	printf "\nCATALINA_OPTS=\"\${CATALINA_OPTS} \${LIFERAY_JVM_OPTS}\"" >> ${TEMP_DIR}/liferay/tomcat/bin/setenv.sh
 }
 
@@ -45,6 +47,15 @@ function date {
 			echo $(/usr/bin/date -d "${1}" "${2}")
 		fi
 	fi
+}
+
+function enable_tomcat_ajp_connector {
+	local server_xml="${TEMP_DIR}/liferay/tomcat/conf/server.xml"
+	local server_xml_with_ajp_connector_enabled="${server_xml}.ajp-enabled"
+
+	cat $server_xml | sed -r 's:<!-- (<Connector port="8009"[^>]+>) -->:\1:' > $server_xml_with_ajp_connector_enabled
+
+	mv $server_xml_with_ajp_connector_enabled $server_xml
 }
 
 function get_docker_image_tags_args {
