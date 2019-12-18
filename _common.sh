@@ -19,7 +19,7 @@ function clean_up_temp_directory {
 function configure_tomcat {
 	enable_tomcat_ajp_connector
 
-	printf "\nCATALINA_OPTS=\"\${CATALINA_OPTS} \${LIFERAY_JVM_OPTS}\"" >> ${TEMP_DIR}/liferay/tomcat/bin/setenv.sh
+	set_catalina_opts
 }
 
 function date {
@@ -125,6 +125,10 @@ function push_docker_images {
 			docker push ${docker_image_tag}
 		done
 	fi
+}
+
+function set_catalina_opts {
+	printf "\nCATALINA_OPTS=\"\${CATALINA_OPTS} \${LIFERAY_JVM_OPTS}\"" >> ${TEMP_DIR}/liferay/tomcat/bin/setenv.sh
 }
 
 function start_tomcat {
