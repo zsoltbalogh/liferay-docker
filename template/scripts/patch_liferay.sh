@@ -19,7 +19,7 @@ function install_patch_step_2 {
 }
 
 function main {
-	if [[ $(ls -A ${LIFERAY_PATCHING_DIR}/patching-tool-*.zip 2>/dev/null) ]]
+	if [[ $(ls -A ${LIFERAY_PATCHING_DIR}/Patching\ Tool*.zip 2>/dev/null) ]]
 	then
 		echo ""
 		echo "[LIFERAY] Updating Patching Tool."
@@ -28,7 +28,7 @@ function main {
 
 		rm -fr /opt/liferay/patching-tool
 
-		unzip -d /opt/liferay -q ${LIFERAY_PATCHING_DIR}/patching-tool-*
+		unzip -d /opt/liferay -q ${LIFERAY_PATCHING_DIR}/Patching\ Tool*.zip
 
 		/opt/liferay/patching-tool/patching-tool.sh auto-discovery
 
