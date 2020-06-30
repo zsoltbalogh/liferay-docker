@@ -15,6 +15,8 @@ function main {
 
 	export LIFERAY_MOUNT_DIR
 
+	${LIFERAY_DISABLE_TRIAL_LICENSE} && rm -f /opt/liferay/deploy/license-*.xml
+
 	execute_scripts /usr/local/liferay/scripts/pre-configure
 
 	. set_java_version.sh
