@@ -32,3 +32,10 @@ docker.image.git.id-1.0.0=e8b64a25e7e9136b310957d1052aa8c06789e37e
 
 docker.image.change.log-1.1.0=LPS-120166
 docker.image.git.id-1.1.0=3ec11d540355403aad5b5f1de295eabf16d2fe9d
+
+#
+# Liferay Docker Image Version 1.2.0
+#
+
+docker.image.change.log-1.2.0=LPS-120829
+docker.image.git.id-1.2.0=e74a16f0a2632ea2437957f581e1fad214ee7269
