@@ -1,18 +1,43 @@
 #!/bin/bash
 
+function generate_docker_hub_base_image_page {
+		mkdir -p docs/docker_hub
+
+	(
+		cat << EOF
+## About
+
+These images are the base software stack for Liferay bundle Docker images. They contain Alpine Linux as OS, Zulu JDK, tools and scripts to run Liferay products. More information can be found in the Dockerfile at http://github.com/liferay/liferay-docker.
+
+## Tags
+
+For [tags](https://hub.docker.com/r/liferay/base/tags) that follow the format *{version}-{date}*, *version* denotes the version of the image, and *date* denotes the date when the Docker image was made.
+
+[Tags](https://hub.docker.com/r/liferay/base/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-{date}*.
+
+The version number is determined based on general semantic versioning principles. Release notes can be find by [searching for the version tags in Liferay's issue tracker system](https://issues.liferay.com/issues/?jql=labels%20in%20(d1.1.0)). The version number consists of 3 parts *{major}-{minor}-{patch}*. Increment happens to the:
+
+ - {major} version when a potential breaking change is made (i.e. previous extension points are not available or work differently)
+ - {minor} version when a new functionality is added in a backwards compatible manner
+ - {patch} version when backwards compatible bug fixes are made.
+EOF
+	) > docs/docker_hub/README-base.md
+
+}
+
 #
 # Usage: generate_docker_hub_page image-name product-name example-version-number enterprise?
 #
-function generate_docker_hub_page {
+function generate_docker_hub_bundle_image_page {
 	mkdir -p docs/docker_hub
 
 	(
 		cat << EOF
 ## Tags
 
-For [tags](https://hub.docker.com/r/liferay/${1}/tags) that follow the format *{version}-{date}*, *version* denotes the version of Liferay ${2}, and *date* denotes the date when the Docker image was made.
+For [tags](https://hub.docker.com/r/liferay/${1}/tags) that follow the format *{version}-d{docker-version}-{date}*, *version* denotes the version of Liferay ${2}, *docker-version* denotes the version of the [parent (\`liferay/base\`) image](https://hub.docker.com/r/liferay/base), and *date* denotes the date when the Docker image was made.
 
-[Tags](https://hub.docker.com/r/liferay/${1}/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-{date}*.
+[Tags](https://hub.docker.com/r/liferay/${1}/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-d{docker-version}-{date}*.
 
 EOF
 
@@ -24,6 +49,7 @@ EOF
 		fi
 
 		cat << EOF
+
 
 ## Running
 
@@ -110,13 +136,15 @@ EOF
 }
 
 function main {
-	generate_docker_hub_page dxp DXP 7.3.10-ga1 true
+	generate_docker_hub_base_image_page
 
-	generate_docker_hub_page portal Portal 7.3.5-ga6 false
+	generate_docker_hub_bundle_image_page dxp DXP 7.3.10-ga1 true
 
-	generate_docker_hub_page commerce Commerce 2.0.7-7.2.x false
+	generate_docker_hub_bundle_image_page commerce Commerce 2.0.7-7.2.x false
 
-	generate_docker_hub_page commerce-enterprise "Commerce Enterprise" 2.1.2-7.2.x true
+	generate_docker_hub_bundle_image_page commerce-enterprise "Commerce Enterprise" 2.1.2-7.2.x true
+
+	generate_docker_hub_bundle_image_page portal Portal 7.3.5-ga6 false
 }
 
 main ${@}
