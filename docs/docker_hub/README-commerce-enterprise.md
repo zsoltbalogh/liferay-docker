@@ -1,10 +1,11 @@
 ## Tags
 
-For [tags](https://hub.docker.com/r/liferay/commerce-enterprise/tags) that follow the format *{version}-{date}*, *version* denotes the version of Liferay Commerce Enterprise, and *date* denotes the date when the Docker image was made.
+For [tags](https://hub.docker.com/r/liferay/commerce-enterprise/tags) that follow the format *{version}-d{docker-version}-{date}*, *version* denotes the version of Liferay Commerce Enterprise, *docker-version* denotes the version of the [parent (`liferay/base`) image](https://hub.docker.com/r/liferay/base), and *date* denotes the date when the Docker image was made.
 
-[Tags](https://hub.docker.com/r/liferay/commerce-enterprise/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-{date}*.
+[Tags](https://hub.docker.com/r/liferay/commerce-enterprise/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-d{docker-version}-{date}*.
 
-The Commerce Enterprise images come with a 30 day trial license. Older images will be regularly deleted and new images with a new 30 day trial license will be made available.
+The Commerce Enterprise images come with a 90 day trial license. Older images will be regularly deleted and new images with a new 90 day trial license will be made available.
+
 
 ## Running
 
@@ -14,7 +15,7 @@ To start Liferay Commerce Enterprise, replace {tag} and execute:
 
 For example:
 
-`docker run -it -p 8080:8080 liferay/commerce-enterprise:2.0.6`
+`docker run -it -p 8080:8080 liferay/commerce-enterprise:2.1.2-7.2.x`
 
 The `-it` argument allows you to stop the container with CTRL-C. Otherwise, you have to use `docker kill {containerId}` to stop the container.
 

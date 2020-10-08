@@ -1,10 +1,11 @@
 ## Tags
 
-For [tags](https://hub.docker.com/r/liferay/commerce/tags) that follow the format *{version}-{date}*, *version* denotes the version of Liferay Commerce, and *date* denotes the date when the Docker image was made.
+For [tags](https://hub.docker.com/r/liferay/commerce/tags) that follow the format *{version}-d{docker-version}-{date}*, *version* denotes the version of Liferay Commerce, *docker-version* denotes the version of the [parent (`liferay/base`) image](https://hub.docker.com/r/liferay/base), and *date* denotes the date when the Docker image was made.
 
-[Tags](https://hub.docker.com/r/liferay/commerce/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-{date}*.
+[Tags](https://hub.docker.com/r/liferay/commerce/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-d{docker-version}-{date}*.
 
 New Docker images will be made even for older releases of Liferay Commerce as our support for Docker evolves.
+
 
 ## Running
 
@@ -14,7 +15,7 @@ To start Liferay Commerce, replace {tag} and execute:
 
 For example:
 
-`docker run -it -p 8080:8080 liferay/commerce:1.0.1`
+`docker run -it -p 8080:8080 liferay/commerce:2.0.7-7.2.x`
 
 The `-it` argument allows you to stop the container with CTRL-C. Otherwise, you have to use `docker kill {containerId}` to stop the container.
 
