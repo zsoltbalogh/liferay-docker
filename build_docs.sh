@@ -110,12 +110,12 @@ EOF
 }
 
 function main {
-	generate_docker_hub_page dxp DXP 7.1.10-201809071129 true 
-	
+	generate_docker_hub_page dxp DXP 7.1.10-201809071129 true
+
 	generate_docker_hub_page portal Portal 7.1.0-ga1-201809012030 false
-	
+
 	generate_docker_hub_page commerce Commerce 1.0.1 false
-	
+
 	generate_docker_hub_page commerce-enterprise "Commerce Enterprise" 2.0.6 true
 }
 
