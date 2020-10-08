@@ -1,10 +1,11 @@
 ## Tags
 
-For [tags](https://hub.docker.com/r/liferay/dxp/tags) that follow the format *{version}-{date}*, *version* denotes the version of Liferay DXP, and *date* denotes the date when the Docker image was made.
+For [tags](https://hub.docker.com/r/liferay/dxp/tags) that follow the format *{version}-d{docker-version}-{date}*, *version* denotes the version of Liferay DXP, *docker-version* denotes the version of the [parent (`liferay/base`) image](https://hub.docker.com/r/liferay/base), and *date* denotes the date when the Docker image was made.
 
-[Tags](https://hub.docker.com/r/liferay/dxp/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-{date}*.
+[Tags](https://hub.docker.com/r/liferay/dxp/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-d{docker-version}-{date}*.
 
-The DXP images come with a 30 day trial license. Older images will be regularly deleted and new images with a new 30 day trial license will be made available.
+The DXP images come with a 90 day trial license. Older images will be regularly deleted and new images with a new 90 day trial license will be made available.
+
 
 ## Running
 
@@ -14,7 +15,7 @@ To start Liferay DXP, replace {tag} and execute:
 
 For example:
 
-`docker run -it -p 8080:8080 liferay/dxp:7.1.10-201809071129`
+`docker run -it -p 8080:8080 liferay/dxp:7.3.10-ga1`
 
 The `-it` argument allows you to stop the container with CTRL-C. Otherwise, you have to use `docker kill {containerId}` to stop the container.
 
