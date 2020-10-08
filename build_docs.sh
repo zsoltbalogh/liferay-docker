@@ -18,7 +18,7 @@ EOF
 
 		if ( $(${4}) )
 		then
-			echo "The ${2} images come with a 30 day trial license. Older images will be regularly deleted and new images with a new 30 day trial license will be made available."
+			echo "The ${2} images come with a 90 day trial license. Older images will be regularly deleted and new images with a new 90 day trial license will be made available."
 		else
 			echo "New Docker images will be made even for older releases of Liferay Commerce as our support for Docker evolves."
 		fi
