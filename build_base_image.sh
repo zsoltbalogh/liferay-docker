@@ -20,6 +20,8 @@ function build_docker_image {
 }
 
 function main {
+	update_image base
+
 	make_temp_directory templates/base
 
 	build_docker_image

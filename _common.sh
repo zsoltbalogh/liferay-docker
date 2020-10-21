@@ -221,6 +221,24 @@ function test_docker_image {
 	fi
 }
 
+function update_image {
+	local image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1}:latest)
+
+	if [[ ${image_version} == $(./release_notes.sh get-version) ]]
+	then
+		exit
+	fi
+
+	docker pull liferay/${1}:latest
+
+	base_image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1}:latest)
+
+	if [[ ${base_image_version} == $(./release_notes.sh get-version) ]]
+	then
+		exit
+	fi
+}
+
 function warm_up_tomcat {
 
 	#
