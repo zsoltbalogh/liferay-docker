@@ -4,25 +4,6 @@ source ./_common.sh
 
 BUILD_ALL_IMAGES_PUSH=${1}
 
-function build_base_image {
-	echo ""
-	echo "Building Docker image base."
-	echo ""
-
-	{
-		time ./build_base_image.sh ${BUILD_ALL_IMAGES_PUSH} 2>&1
-
-		if [ $? -gt 0 ]
-		then
-			echo "FAILED: base" >> ${LOGS_DIR}/results
-
-			exit 1
-		else
-			echo "SUCCESS: base" >> ${LOGS_DIR}/results
-		fi
-	} | tee ${LOGS_DIR}"/base.log"
-}
-
 function build_bundle_image {
 
 	#
@@ -43,20 +24,7 @@ function build_bundle_image {
 		local build_id=${1}
 	fi
 
-	echo ""
-	echo "Building Docker image ${build_id} based on ${2}."
-	echo ""
-
-	{
-		LIFERAY_DOCKER_FIX_PACK_URL=${3} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${5} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${4} time ./build_bundle_image.sh ${BUILD_ALL_IMAGES_PUSH} 2>&1
-
-		if [ $? -gt 0 ]
-		then
-			echo "FAILED: ${build_id}" >> ${LOGS_DIR}/results
-		else
-			echo "SUCCESS: ${build_id}" >> ${LOGS_DIR}/results
-		fi
-	} | tee ${LOGS_DIR}/${build_id}".log"
+	LIFERAY_DOCKER_FIX_PACK_URL=${3} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${5} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${4} build_image bundle ${build_id} " based on ${2}"
 }
 
 function build_bundle_images_dxp_70 {
@@ -321,11 +289,7 @@ function main {
 		exit 1
 	fi
 
-	LOGS_DIR=logs-$(date "$(date)" "+%Y%m%d%H%M")
-
-	mkdir -p ${LOGS_DIR}
-
-	build_base_image
+	build_image base base
 
 	local release_file_urls=(
 		#releases.liferay.com/commerce/2.0.7/liferay-commerce-2.0.7-7.2.x-201912261227.7z

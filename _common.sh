@@ -1,4 +1,29 @@
 #!/bin/bash
+function build_image {
+	if [ ! -n "${LOGS_DIR}" ]
+	then
+		LOGS_DIR=logs-$(date "$(date)" "+%Y%m%d%H%M")
+
+		mkdir -p ${LOGS_DIR}
+	fi
+
+	echo ""
+	echo "Building Docker image ${2}${3}."
+	echo ""
+
+	{
+		time ./build_${1}_image.sh ${BUILD_ALL_IMAGES_PUSH} 2>&1
+
+		if [ $? -gt 0 ]
+		then
+			echo "FAILED: ${2}" >> ${LOGS_DIR}/results
+
+			exit 1
+		else
+			echo "SUCCESS: ${2}" >> ${LOGS_DIR}/results
+		fi
+	} | tee ${LOGS_DIR}"/${2}.log"
+}
 
 function check_utils {
 
@@ -226,6 +251,8 @@ function update_image {
 
 	if [[ ${image_version} == $(./release_notes.sh get-version) ]]
 	then
+		echo "Image ${1} was available locally, skipping the build process."
+
 		exit
 	fi
 
@@ -235,6 +262,8 @@ function update_image {
 
 	if [[ ${base_image_version} == $(./release_notes.sh get-version) ]]
 	then
+		echo "Image ${1} was available on Docker Hub, skipping the build process."
+
 		exit
 	fi
 }
