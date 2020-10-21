@@ -10,7 +10,7 @@ RUN wget --quiet https://cdn.azul.com/public_keys/alpine-signing@azul.com-5d5dc4
     echo "https://repos.azul.com/zulu/alpine" >> /etc/apk/repositories && \
     apk --no-cache add zulu8-jdk
 
-RUN apk --no-cache add nss tomcat-native tree ttf-dejavu zulu11-jdk=11.0.5-r3
+RUN apk --no-cache add nss tomcat-native tree ttf-dejavu
 
 COPY scripts/* /usr/local/bin/
 
