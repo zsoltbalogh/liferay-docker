@@ -141,11 +141,13 @@ function get_tomcat_version {
 	echo ${liferay_tomcat_version}
 }
 
-function make_temp_directory {
+function init {
 	CURRENT_DATE=$(date)
 
 	TIMESTAMP=$(date "${CURRENT_DATE}" "+%Y%m%d%H%M%S")
+}
 
+function make_temp_directory {
 	TEMP_DIR=temp-${TIMESTAMP}
 
 	mkdir -p ${TEMP_DIR}
@@ -295,3 +297,5 @@ function warm_up_tomcat {
 		fi
 	fi
 }
+
+init

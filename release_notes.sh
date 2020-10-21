@@ -122,7 +122,12 @@ function print_version {
 	then
 		if [ -n "${RELEASE_NOTES_CHANGE_LOG}" ]
 		then
-			echo ${RELEASE_NOTES_NEW_VERSION}-snapshot
+			if [ -n "$(git status -s)" ]
+			then
+				echo ${RELEASE_NOTES_NEW_VERSION}-snapshot-${TIMESTAMP}
+			else
+				echo ${RELEASE_NOTES_NEW_VERSION}-snapshot-$(git rev-parse --short HEAD)
+			fi
 		else
 			echo ${RELEASE_NOTES_LATEST_VERSION}
 		fi

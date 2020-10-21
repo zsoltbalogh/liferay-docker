@@ -20,7 +20,7 @@ function build_docker_image {
 }
 
 function main {
-#	update_image base
+	update_image base
 
 	build_image os os || exit 1
 
