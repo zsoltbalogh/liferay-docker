@@ -249,7 +249,7 @@ function test_docker_image {
 }
 
 function update_image {
-	local image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1}:latest)
+	local image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1})
 
 	if [[ ${image_version} == $(./release_notes.sh get-version) ]]
 	then
@@ -260,7 +260,7 @@ function update_image {
 
 	docker pull liferay/${1}:latest
 
-	base_image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1}:latest)
+	base_image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1})
 
 	if [[ ${base_image_version} == $(./release_notes.sh get-version) ]]
 	then
