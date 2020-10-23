@@ -186,6 +186,22 @@ function push_docker_images {
 	fi
 }
 
+function set_servlet_container_image_version {
+	if [ -n "${SERVLET_CONTAINER_IMAGE_VERSION}" ]
+	then
+		return
+	fi
+
+	if [ ! -n "${LIFERAY_DOCKER_JAVA_VERSION}" ] || [ ! -n "${LIFERAY_DOCKER_TOMCAT_VERSION}" ]
+	then
+		echo "Please set the LIFERAY_DOCKER_JAVA_VERSION and LIFERAY_DOCKER_TOMCAT_VERSION environment variables to run this script."
+
+		exit 1
+	fi
+
+	SERVLET_CONTAINER_IMAGE_VERSION=jdk${LIFERAY_DOCKER_JAVA_VERSION}-tomcat${LIFERAY_DOCKER_TOMCAT_VERSION}
+}
+
 function start_tomcat {
 
 	#
