@@ -7,6 +7,15 @@ function build_image {
 		mkdir -p ${LOGS_DIR}
 	fi
 
+	if [ -f ${LOGS_DIR}"/${2}.log" ]
+	then
+		echo ""
+		echo "Skipping image ${2}${3} as it was already built during this run."
+		echo ""
+
+		return
+	fi
+
 	echo ""
 	echo "Building Docker image ${2}${3}."
 	echo ""
