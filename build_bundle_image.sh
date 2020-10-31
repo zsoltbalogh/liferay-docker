@@ -114,12 +114,12 @@ function build_docker_image {
 	do
 		if [[ ${LIFERAY_DOCKER_RELEASE_FILE_URL%} == */snapshot-* ]]
 		then
-			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}-${release_version_single}-${release_hash}")
-			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}-$(date "${CURRENT_DATE}" "+%Y%m%d")")
-			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}")
+			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}-jdk${LIFERAY_DOCKER_JAVA_VERSION}-${release_version_single}-${release_hash}")
+			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}-jdk${LIFERAY_DOCKER_JAVA_VERSION}-$(date "${CURRENT_DATE}" "+%Y%m%d")")
+			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_branch}-jdk${LIFERAY_DOCKER_JAVA_VERSION}")
 		else
-			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_version_single}-d$(./release_notes.sh get-version)-${TIMESTAMP}")
-			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_version_single}")
+			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_version_single}-jdk${LIFERAY_DOCKER_JAVA_VERSION}-d$(./release_notes.sh get-version)-${TIMESTAMP}")
+			DOCKER_IMAGE_TAGS+=("liferay/${docker_image_name}:${release_version_single}-jdk${LIFERAY_DOCKER_JAVA_VERSION}")
 		fi
 	done
 
@@ -183,6 +183,10 @@ function install_fix_pack {
 
 function main {
 	check_usage ${@}
+
+	set_servlet_image_version
+
+	build_image base base-${SERVLET_IMAGE_VERSION}
 
 	make_temp_directory templates/bundle
 

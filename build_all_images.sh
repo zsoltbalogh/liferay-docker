@@ -27,15 +27,6 @@ function build_bundle_jdk_image {
 		return
 	fi
 
-	LIFERAY_DOCKER_TOMCAT_VERSION=${3}
-
-	set_servlet_image_version
-
-	export LIFERAY_DOCKER_JAVA_VERSION LIFERAY_DOCKER_TOMCAT_VERSION
-
-	build_image base base-${SERVLET_IMAGE_VERSION}
-
-
 	if [ ! -n "${1}" ]
 	then
 		local build_id=${2##*/}
@@ -43,7 +34,7 @@ function build_bundle_jdk_image {
 		local build_id=${1}
 	fi
 
-	LIFERAY_DOCKER_FIX_PACK_URL=${5} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${6} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${5} build_image bundle ${build_id} " based on ${2}"
+	LIFERAY_DOCKER_FIX_PACK_URL=${5} LIFERAY_DOCKER_JAVA_VERSION=${LIFERAY_DOCKER_JAVA_VERSION} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${6} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${5} LIFERAY_DOCKER_TOMCAT_VERSION=${3} build_image bundle ${build_id} " based on ${2}"
 }
 
 function build_bundle_images_dxp_70 {

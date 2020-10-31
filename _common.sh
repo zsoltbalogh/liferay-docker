@@ -142,9 +142,14 @@ function get_tomcat_version {
 }
 
 function init {
-	CURRENT_DATE=$(date)
+	if [ ! -n "${CURRENT_DATE}" ]
+	then
+		CURRENT_DATE=$(date)
 
-	TIMESTAMP=$(date "${CURRENT_DATE}" "+%Y%m%d%H%M%S")
+		TIMESTAMP=$(date "${CURRENT_DATE}" "+%Y%m%d%H%M%S")
+
+		export CURRENT_DATE TIMESTAMP
+	fi
 }
 
 function make_temp_directory {
@@ -276,9 +281,9 @@ function update_image {
 
 	docker pull liferay/${1}:latest
 
-	base_image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1})
+	image_version=$(docker image inspect --format '{{index .Config.Labels "org.label-schema.version"}}' liferay/${1})
 
-	if [[ ${base_image_version} == $(./release_notes.sh get-version) ]]
+	if [[ ${image_version} == $(./release_notes.sh get-version) ]]
 	then
 		echo "Image ${1} was available on Docker Hub, skipping the build process."
 

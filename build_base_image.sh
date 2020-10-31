@@ -25,7 +25,7 @@ function main {
 
 	update_image base:${SERVLET_IMAGE_VERSION}
 
-	build_image servlet ${SERVLET_IMAGE_VERSION}
+	build_image servlet servlet-${SERVLET_IMAGE_VERSION}
 
 	make_temp_directory templates/base
 
