@@ -12,10 +12,29 @@ function build_bundle_image {
 	# LIFERAY_DOCKER_IMAGE_FILTER=commerce ./build_all_images.sh
 	#
 
-	if [ -n "${LIFERAY_DOCKER_IMAGE_FILTER}" ] && [[ ! $(echo ${1} ${2} ${3} ${4} | grep ${LIFERAY_DOCKER_IMAGE_FILTER}) ]]
+	LIFERAY_DOCKER_JAVA_VERSION=8
+
+	build_bundle_jdk_image ${@}
+
+	LIFERAY_DOCKER_JAVA_VERSION=11
+
+	build_bundle_jdk_image ${@}
+}
+
+function build_bundle_jdk_image {
+	if [ -n "${LIFERAY_DOCKER_IMAGE_FILTER}" ] && [[ ! $(echo ${1} ${2} ${4} ${5} jdk${LIFERAY_DOCKER_JAVA_VERSION} tomcat${3} | grep ${LIFERAY_DOCKER_IMAGE_FILTER}) ]]
 	then
 		return
 	fi
+
+	LIFERAY_DOCKER_TOMCAT_VERSION=${3}
+
+	set_servlet_image_version
+
+	export LIFERAY_DOCKER_JAVA_VERSION LIFERAY_DOCKER_TOMCAT_VERSION
+
+	build_image base base-${SERVLET_IMAGE_VERSION}
+
 
 	if [ ! -n "${1}" ]
 	then
@@ -24,7 +43,7 @@ function build_bundle_image {
 		local build_id=${1}
 	fi
 
-	LIFERAY_DOCKER_FIX_PACK_URL=${3} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${5} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${4} build_image bundle ${build_id} " based on ${2}"
+	LIFERAY_DOCKER_FIX_PACK_URL=${5} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${6} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${5} build_image bundle ${build_id} " based on ${2}"
 }
 
 function build_bundle_images_dxp_70 {
@@ -279,6 +298,7 @@ function build_bundle_images_dxp_73 {
 	build_bundle_image \
 		7.3.10-ga1 \
 		files.liferay.com/private/ee/portal/7.3.10/liferay-dxp-tomcat-7.3.10-ga1-20200930160533946.7z \
+		9.0 \
 		"" \
 		""
 }
@@ -288,8 +308,6 @@ function main {
 	then
 		exit 1
 	fi
-
-	build_image base base
 
 	local release_file_urls=(
 		#releases.liferay.com/commerce/2.0.7/liferay-commerce-2.0.7-7.2.x-201912261227.7z
