@@ -186,8 +186,8 @@ function push_docker_images {
 	fi
 }
 
-function set_servlet_container_image_version {
-	if [ -n "${SERVLET_CONTAINER_IMAGE_VERSION}" ]
+function set_servlet_image_version {
+	if [ -n "${SERVLET_IMAGE_VERSION}" ]
 	then
 		return
 	fi
@@ -199,7 +199,7 @@ function set_servlet_container_image_version {
 		exit 1
 	fi
 
-	SERVLET_CONTAINER_IMAGE_VERSION=jdk${LIFERAY_DOCKER_JAVA_VERSION}-tomcat${LIFERAY_DOCKER_TOMCAT_VERSION}
+	SERVLET_IMAGE_VERSION=jdk${LIFERAY_DOCKER_JAVA_VERSION}-tomcat${LIFERAY_DOCKER_TOMCAT_VERSION}
 }
 
 function start_tomcat {

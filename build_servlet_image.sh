@@ -6,8 +6,8 @@ function build_docker_image {
 	local image_version=$(./release_notes.sh get-version)
 
 	DOCKER_IMAGE_TAGS=()
-	DOCKER_IMAGE_TAGS+=("liferay/servlet-container:${SERVLET_CONTAINER_IMAGE_VERSION}-${image_version}-${TIMESTAMP}")
-	DOCKER_IMAGE_TAGS+=("liferay/servlet-container:${SERVLET_CONTAINER_IMAGE_VERSION}")
+	DOCKER_IMAGE_TAGS+=("liferay/servlet:${SERVLET_IMAGE_VERSION}-${image_version}-${TIMESTAMP}")
+	DOCKER_IMAGE_TAGS+=("liferay/servlet:${SERVLET_IMAGE_VERSION}")
 
 	docker build \
 		--build-arg JAVA_PACKAGE=${DOCKER_IMAGE_JAVA_PACKAGE} \
@@ -33,15 +33,15 @@ function configure {
 }
 
 function main {
-	set_servlet_container_image_version
+	set_servlet_image_version
 
 	configure
 
-	update_image servlet-container:${SERVLET_CONTAINER_IMAGE_VERSION}
+	update_image servlet:${SERVLET_IMAGE_VERSION}
 
 	build_image os os || exit 1
 
-	make_temp_directory templates/servlet-container
+	make_temp_directory templates/servlet
 
 	build_docker_image
 
