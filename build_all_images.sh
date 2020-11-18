@@ -14,11 +14,11 @@ function build_bundle_image {
 
 	LIFERAY_DOCKER_JAVA_VERSION=8
 
-	build_bundle_jdk_image ${@}
+	build_bundle_jdk_image "${1}" "${2}" "${3}" "${4}" "${5}" "${6}"
 
 	LIFERAY_DOCKER_JAVA_VERSION=11
 
-	build_bundle_jdk_image ${@}
+	build_bundle_jdk_image "${1}" "${2}" "${3}" "${4}" "${5}" "${6}"
 }
 
 function build_bundle_jdk_image {
@@ -34,7 +34,7 @@ function build_bundle_jdk_image {
 		local build_id=${1}
 	fi
 
-	LIFERAY_DOCKER_FIX_PACK_URL=${5} LIFERAY_DOCKER_JAVA_VERSION=${LIFERAY_DOCKER_JAVA_VERSION} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${6} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${5} LIFERAY_DOCKER_TOMCAT_VERSION=${3} build_image bundle ${build_id}-jdk${LIFERAY_DOCKER_JAVA_VERSION} " based on ${2}"
+	LIFERAY_DOCKER_FIX_PACK_URL=${4} LIFERAY_DOCKER_JAVA_VERSION=${LIFERAY_DOCKER_JAVA_VERSION} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${6} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${5} LIFERAY_DOCKER_TOMCAT_VERSION=${3} build_image bundle ${build_id}-jdk${LIFERAY_DOCKER_JAVA_VERSION} " based on ${2}"
 }
 
 function build_bundle_images_dxp_70 {
@@ -336,27 +336,31 @@ function main {
 		exit 1
 	fi
 
-	local release_file_urls=(
-		#releases.liferay.com/commerce/2.0.7/liferay-commerce-2.0.7-7.2.x-201912261227.7z
-		files.liferay.com/private/ee/commerce/2.1.2/liferay-commerce-enterprise-2.1.2-7.1.x-202007312031.7z
-		files.liferay.com/private/ee/commerce/2.1.2/liferay-commerce-enterprise-2.1.2-7.2.x-202007312039.7z
+	local release_file_urls_tomcat_7_0=(
 		releases.liferay.com/portal/6.1.2-ga3/liferay-portal-tomcat-6.1.2-ce-ga3-20130816114619181.zip
 		files.liferay.com/private/ee/portal/6.1.30.5/liferay-portal-tomcat-6.1-ee-ga3-sp5-20160201142343123.zip
 		releases.liferay.com/portal/6.2.5-ga6/liferay-portal-tomcat-6.2-ce-ga6-20160112152609836.zip
 		files.liferay.com/private/ee/portal/6.2.10.21/liferay-portal-tomcat-6.2-ee-sp20-20170717160924965.zip
-		releases.liferay.com/portal/7.0.6-ga7/liferay-ce-portal-tomcat-7.0-ga7-20180507111753223.zip
+	)
+
+	for release_file_url in ${release_file_urls_tomcat_7_0[@]}
+	do
+		build_bundle_image "" ${release_file_url} 7.0 "" ""
+	done
+
+	build_bundle_image "" releases.liferay.com/portal/7.0.6-ga7/liferay-ce-portal-tomcat-7.0-ga7-20180507111753223.zip 8.0 "" ""
+
+	local release_file_urls_tomcat_9_0=(
+		files.liferay.com/private/ee/commerce/2.1.2/liferay-commerce-enterprise-2.1.2-7.1.x-202007312031.7z
+		files.liferay.com/private/ee/commerce/2.1.2/liferay-commerce-enterprise-2.1.2-7.2.x-202007312039.7z
 		releases.liferay.com/portal/7.1.3-ga4/liferay-ce-portal-tomcat-7.1.3-ga4-20190508171117552.7z
 		releases.liferay.com/portal/7.2.1-ga2/liferay-ce-portal-tomcat-7.2.1-ga2-20191111141448326.7z
 		releases.liferay.com/portal/7.3.5-ga6/liferay-ce-portal-tomcat-7.3.5-ga6-20200930172312275.7z
-		#releases.liferay.com/portal/snapshot-7.1.x/201902130905/liferay-portal-tomcat-7.1.x.7z
-		#releases.liferay.com/portal/snapshot-master/201902131509/liferay-portal-tomcat-master.7z
-		#files.liferay.com/private/ee/portal/snapshot-ee-6.2.x/201808160944/liferay-portal-tomcat-ee-6.2.x.zip
-		#files.liferay.com/private/ee/portal/snapshot-7.1.x-private/201808162051/liferay-portal-tomcat-7.1.x-private.zip
 	)
 
-	for release_file_url in ${release_file_urls[@]}
+	for release_file_url in ${release_file_urls_tomcat_9_0[@]}
 	do
-		build_bundle_image "" ${release_file_url} "" ""
+		build_bundle_image "" ${release_file_url} 9.0 "" ""
 	done
 
 	build_bundle_images_dxp_70
