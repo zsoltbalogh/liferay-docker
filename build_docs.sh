@@ -29,21 +29,26 @@ EOF
 # Usage: generate_docker_hub_page image-name product-name example-version-number enterprise?
 #
 function generate_docker_hub_bundle_image_page {
+	local product_id=${1}
+	local product_name=${2}
+	local product_version=${3}
+	local is_commercial=${4}
+
 	mkdir -p docs/docker_hub
 
 	(
 		cat << EOF
 ## Tags
 
-For [tags](https://hub.docker.com/r/liferay/${1}/tags) that follow the format *{version}-d{docker-version}-{date}*, *version* denotes the version of Liferay ${2}, *docker-version* denotes the version of the [parent (\`liferay/base\`) image](https://hub.docker.com/r/liferay/base), and *date* denotes the date when the Docker image was made.
+For [tags](https://hub.docker.com/r/liferay/${product_id}/tags) that follow the format *{version}-d{docker-version}-{date}*, *version* denotes the version of Liferay ${product_name}, *docker-version* denotes the version of the [parent (\`liferay/base\`) image](https://hub.docker.com/r/liferay/base), and *date* denotes the date when the Docker image was made.
 
-[Tags](https://hub.docker.com/r/liferay/${1}/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-d{docker-version}-{date}*.
+[Tags](https://hub.docker.com/r/liferay/${product_id}/tags) that follow the format *{version}* always point to the latest tag that follows the format *{version}-d{docker-version}-{date}*.
 
 EOF
 
-		if ( $(${4}) )
+		if ($(${is_commercial}))
 		then
-			echo "The ${2} images come with a 90 day trial license. Older images will be regularly deleted and new images with a new 90 day trial license will be made available."
+			echo "The ${product_name} images come with a 90 day trial license. Older images will be regularly deleted and new images with a new 90 day trial license will be made available."
 		else
 			echo "New Docker images will be made even for older releases of Liferay Commerce as our support for Docker evolves."
 		fi
@@ -53,23 +58,23 @@ EOF
 
 ## Running
 
-To start Liferay ${2}, replace {tag} and execute:
+To start Liferay ${product_name}, replace {tag} and execute:
 
-\`docker run -it -p 8080:8080 liferay/${1}:{tag}\`
+\`docker run -it -p 8080:8080 liferay/${product_id}:{tag}\`
 
 For example:
 
-\`docker run -it -p 8080:8080 liferay/${1}:${3}\`
+\`docker run -it -p 8080:8080 liferay/${product_id}:${product_version}\`
 
 The \`-it\` argument allows you to stop the container with CTRL-C. Otherwise, you have to use \`docker kill {containerId}\` to stop the container.
 
-The \`-p 8080:8080\` argument maps the container's port 8080 with the host's port 8080 so that you can access Liferay ${2} from a browser.
+The \`-p 8080:8080\` argument maps the container's port 8080 with the host's port 8080 so that you can access Liferay ${product_name} from a browser.
 
 ## Environment Variables
 
 You can tune the default JVM parameters by setting the environment variable \`LIFERAY_JVM_OPTS\`.
 
-You can customize the behavior of Liferay ${2} via environment variables that map to portal.properties. For example, if you want to provide only English and Portuguese, you could create a portal-ext.properties with the entry:
+You can customize the behavior of Liferay ${product_name} via environment variables that map to portal.properties. For example, if you want to provide only English and Portuguese, you could create a portal-ext.properties with the entry:
 
 \`locales.enabled=en_US,pt_BR\`
 
@@ -89,24 +94,24 @@ To quickly test changes without building a new image, map the host's file system
 
 Start the container with the option \`-v \$(pwd)/xyz123:/mnt/liferay\` to bridge \`\$(pwd)/xyz123\` in the host operating system to \`/mnt/liferay\` on the container.
 
-Files in the host directory \`\$(pwd)/xyz123/files\` are also available in the container directory \`/mnt/liferay/files\` and will be copied to \`/opt/liferay\` before Liferay ${2} starts.
+Files in the host directory \`\$(pwd)/xyz123/files\` are also available in the container directory \`/mnt/liferay/files\` and will be copied to \`/opt/liferay\` before Liferay ${product_name} starts.
 
-For example, if you want to modify Tomcat's setenv.sh file, then place your changes in \`\$(pwd)/xyz123/files/tomcat/bin/setenv.sh\` and setenv.sh will be overwritten in \`/opt/liferay/tomcat/bin/setenv.sh\` before Liferay ${2} starts.
+For example, if you want to modify Tomcat's setenv.sh file, then place your changes in \`\$(pwd)/xyz123/files/tomcat/bin/setenv.sh\` and setenv.sh will be overwritten in \`/opt/liferay/tomcat/bin/setenv.sh\` before Liferay ${product_name} starts.
 
 ## Scripts
 
-All scripts in the container directory \`/mnt/liferay/scripts\` will be executed before before Liferay ${2} starts. Place your scripts in \`\$(pwd)/xyz123/scripts\`.
+All scripts in the container directory \`/mnt/liferay/scripts\` will be executed before before Liferay ${product_name} starts. Place your scripts in \`\$(pwd)/xyz123/scripts\`.
 
 ## Deploy
 
-Copy files to \`\$(pwd)/xyz123/deploy\` on the host operating system to deploy modules to Liferay ${2} at runtime.
+Copy files to \`\$(pwd)/xyz123/deploy\` on the host operating system to deploy modules to Liferay ${product_name} at runtime.
 
 ## About
 
 Images are built based off of OpenJDK on Alpine. More information can be found in the Dockerfile at http://github.com/liferay/liferay-docker.
 
 EOF
-		if ( $(${4}) )
+		if ($(${is_commercial}))
 		then
 			cat << EOF
 ## License
@@ -121,7 +126,7 @@ EOF
 			cat << EOF
 ## License
 
-This library, *Liferay ${2} Community Edition*, is free software ("Licensed Software"); you can redistribute it and/or modify it under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-2.1.html) as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
+This library, *Liferay ${product_name} Community Edition*, is free software ("Licensed Software"); you can redistribute it and/or modify it under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-2.1.html) as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
 
 This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; including but not limited to, the implied warranty of MERCHANTABILITY, NONINFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. See the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-2.1.html) for more details.
 
@@ -132,7 +137,7 @@ Free Software Foundation, Inc.
 Boston, MA 02110-1301 USA
 EOF
 		fi
-	) > docs/docker_hub/README-${1}.md
+	) > docs/docker_hub/README-${product_id}.md
 }
 
 function main {
