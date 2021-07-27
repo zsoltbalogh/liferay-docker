@@ -1,15 +1,8 @@
 #!/bin/bash
 
-function usage {
-  echo "Use -d or --domain to set the host domain (url), which the script checks. Example: -d https://en.wikipedia.org"
-  echo "Use -f or --fpath set the rest of the url or the path after the host. Example: -p /wiki/Main_Page"
-  echo "Use -c or --content to set a filter. With this set, the check will only be considered successful, if the keyword is present. Example: -c BakerStreet"
-  echo "Use -t or --timeout to set a timeout in seconds for the check, default is 20 seconds. Example: -t 10"
-  echo "Use -p or --port to set the port on which the domain is reachable. Example: -p 8080"
-  exit 2
-}
 
-function collect_parameters {
+
+function check_usage {
 	FILE_PATH="/"
     TIMEOUT=20
 
@@ -37,10 +30,10 @@ function collect_parameters {
                 CONTENT=$1
                 ;;
             -h | --help )
-                usage
+                print_help
                 ;;
             * )
-                usage
+                print_help
                 ;;
         esac
         shift
@@ -53,7 +46,8 @@ function collect_parameters {
 }
 
 function main {
-	collect_parameters "${@}"
+	check_usage "${@}"
+
     local curl_command="curl --url ${DOMAIN}${PORT} -m ${TIMEOUT} ${DOMAIN}${PORT}${FILE_PATH}"
 
     if [[ -n ${CONTENT+x} ]]
@@ -70,6 +64,15 @@ function main {
     fi
 
     exit $ret
+}
+
+function print_help {
+  echo "Use -d or --domain to set the host domain (url), which the script checks. Example: -d https://en.wikipedia.org"
+  echo "Use -f or --fpath set the rest of the url or the path after the host. Example: -p /wiki/Main_Page"
+  echo "Use -c or --content to set a filter. With this set, the check will only be considered successful, if the keyword is present. Example: -c BakerStreet"
+  echo "Use -t or --timeout to set a timeout in seconds for the check, default is 20 seconds. Example: -t 10"
+  echo "Use -p or --port to set the port on which the domain is reachable. Example: -p 8080"
+  exit 2
 }
 
 main "${@}"
