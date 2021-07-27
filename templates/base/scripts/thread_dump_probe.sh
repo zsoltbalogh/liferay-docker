@@ -1,21 +1,19 @@
 #!/bin/bash
 
-
-
 function check_usage {
 	FILE_PATH="/"
     TIMEOUT=20
 
-    while [ "$1" != "" ]
+    while [ "${1}" != "" ]
     do
         case $1 in
             -d | --domain )
                 shift
-                DOMAIN=$1
+                DOMAIN=${1}
                 ;;
             -f | --fpath )
                 shift
-                FILE_PATH=$1
+                FILE_PATH=${1}
                 ;;
             -p | --port )
                 shift
@@ -23,11 +21,11 @@ function check_usage {
                 ;;
             -t | --timeout )
                 shift
-                TIMEOUT=$1
+                TIMEOUT=${1}
                 ;;
             -c | --content )
                 shift
-                CONTENT=$1
+                CONTENT=${1}
                 ;;
             -h | --help )
                 print_help
@@ -58,12 +56,12 @@ function main {
     eval "${curl_command}"
     local ret=$?
 
-    if [ $ret -gt 1 ]
+    if [ ${ret} -gt 1 ]
     then
         kill -3 $(ps -ef | grep org.apache.catalina.startup.Bootstrap | grep -v grep | awk '{ print $1 }')
     fi
 
-    exit $ret
+    exit ${ret}
 }
 
 function print_help {
@@ -72,6 +70,7 @@ function print_help {
   echo "Use -c or --content to set a filter. With this set, the check will only be considered successful, if the keyword is present. Example: -c BakerStreet"
   echo "Use -t or --timeout to set a timeout in seconds for the check, default is 20 seconds. Example: -t 10"
   echo "Use -p or --port to set the port on which the domain is reachable. Example: -p 8080"
+
   exit 2
 }
 
