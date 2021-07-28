@@ -230,6 +230,11 @@ function prepare_temp_directory {
 	fi
 
 	mv "${TEMP_DIR}/liferay-"* "${TEMP_DIR}/liferay"
+
+	if [ -e "${TEMP_DIR}/liferay/elasticsearch-sidecar/7.14.0/modules/x-pack-ml/platform/linux-x86_64/bin" ]
+	then
+		chmod +x "${TEMP_DIR}/liferay/elasticsearch-sidecar/7.14.0/modules/x-pack-ml/platform/linux-x86_64/bin/"*
+	fi
 }
 
 function update_patching_tool {
