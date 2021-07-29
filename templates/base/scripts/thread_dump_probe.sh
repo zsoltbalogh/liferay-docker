@@ -2,32 +2,33 @@
 
 function check_usage {
 	FILE_PATH="/"
+    PORT=8080
     TIMEOUT=20
 
     while [ "${1}" != "" ]
     do
         case $1 in
-            -d | --domain )
+            -d)
                 shift
                 DOMAIN=${1}
                 ;;
-            -f | --fpath )
+            -f)
                 shift
                 FILE_PATH=${1}
                 ;;
-            -p | --port )
+            -p)
                 shift
                 PORT=":${1}"
                 ;;
-            -t | --timeout )
+            -t)
                 shift
                 TIMEOUT=${1}
                 ;;
-            -c | --content )
+            -c)
                 shift
                 CONTENT=${1}
                 ;;
-            -h | --help )
+            -h)
                 print_help
                 ;;
             * )
@@ -40,6 +41,8 @@ function check_usage {
     if [ ! -n "${DOMAIN}" ]
     then
         echo "Please set the domain variable."
+
+        exit 1
     fi
 }
 
@@ -50,7 +53,7 @@ function main {
 
     if [ -n "${CONTENT}" ]
     then
-        curl_command="${curl_command} | grep ${CONTENT}"
+        curl_command="${curl_command} | grep ${CONTENT} > /dev/null"
     fi
 
     eval "${curl_command}"
@@ -65,13 +68,19 @@ function main {
 }
 
 function print_help {
-  echo "Use -d or --domain to set the host domain (url), which the script checks. Example: -d https://en.wikipedia.org"
-  echo "Use -f or --fpath set the rest of the url or the path after the host. Example: -p /wiki/Main_Page"
-  echo "Use -c or --content to set a filter. With this set, the check will only be considered successful, if the keyword is present. Example: -c BakerStreet"
-  echo "Use -t or --timeout to set a timeout in seconds for the check, default is 20 seconds. Example: -t 10"
-  echo "Use -p or --port to set the port on which the domain is reachable. Example: -p 8080"
+    echo "Usage: ${0} -d <domain> -f <path> -c <content> -t <timeout> -p <port>"
+    echo ""
+    echo "The script can be configured by using these parameters:"
+    echo ""
+    echo "    -d (required): the domain the site is responding to with valid content."
+    echo "    -f (optional, default: /): the path to check on the domain."
+    echo "    -c (optional, default: skipping to check): checks if the site response contains this string."
+    echo "    -t (optional, default: 20): timeout in seconds."
+    echo "    -p (optional, default: 8080): the http port to check."
+    echo ""
+    echo "Example: ${0} -d \"http://localhost\" -t 20 -p 8080 -f \"/c/portal/layout\""
 
-  exit 2
+    exit 2
 }
 
 main "${@}"
