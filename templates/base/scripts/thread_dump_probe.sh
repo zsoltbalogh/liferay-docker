@@ -37,7 +37,7 @@ function check_usage {
         shift
     done
 
-    if [ -z ${DOMAIN+x} ]
+    if [ ! -n "${DOMAIN}" ]
     then
         echo "Please set the domain variable."
     fi
@@ -48,7 +48,7 @@ function main {
 
     local curl_command="curl --url ${DOMAIN}${PORT} -m ${TIMEOUT} ${DOMAIN}${PORT}${FILE_PATH}"
 
-    if [[ -n ${CONTENT+x} ]]
+    if [ -n "${CONTENT}" ]
     then
         curl_command="${curl_command} | grep ${CONTENT}"
     fi
