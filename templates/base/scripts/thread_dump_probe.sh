@@ -18,7 +18,7 @@ function check_usage {
 				;;
 			-p)
 				shift
-				PORT=":${1}"
+				PORT=${1}
 				;;
 			-t)
 				shift
@@ -40,7 +40,7 @@ function check_usage {
 
 	if [ ! -n "${DOMAIN}" ]
 	then
-		echo "Please set the domain variable."
+		echo "Please set the domain parameter."
 
 		exit 1
 	fi
@@ -49,14 +49,14 @@ function check_usage {
 function main {
 	check_usage "${@}"
 
-	local curl_command="curl --url ${DOMAIN}${PORT} -m ${TIMEOUT} ${DOMAIN}${PORT}${FILE_PATH}"
+	local curl_command="curl --url ${DOMAIN}:${PORT} -m ${TIMEOUT} ${DOMAIN}:${PORT}${FILE_PATH}"
 
 	if [ -n "${CONTENT}" ]
 	then
-		curl_command="${curl_command} | grep ${CONTENT} > /dev/null"
+		curl_command="${curl_command} | grep ${CONTENT}"
 	fi
 
-	eval "${curl_command}"
+	eval "${curl_command}" > /dev/null
 	local ret=$?
 
 	if [ ${ret} -gt 1 ]
