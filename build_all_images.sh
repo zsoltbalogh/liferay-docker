@@ -25,18 +25,19 @@ function build_base_image {
 	echo "Building Docker image base."
 	echo ""
 
-	{
-		time ./build_base_image.sh ${BUILD_ALL_IMAGES_PUSH} 2>&1
+	local build_base_image_output
+	build_base_image_output=$(time ./build_base_image.sh ${BUILD_ALL_IMAGES_PUSH} 2>&1)
+	build_base_image_ret=$?
 
-		if [ $? -gt 0 ]
-		then
-			echo "FAILED: base" >> ${LOGS_DIR}/results
+	echo -e "${build_base_image_output}" | tee "${LOGS_DIR}"/base.log
 
-			exit 1
-		else
-			echo "SUCCESS: base" >> ${LOGS_DIR}/results
-		fi
-	} | tee ${LOGS_DIR}"/base.log"
+	if [ $build_base_image_ret -gt 0 ]
+	then
+		echo "FAILED: base" >> ${LOGS_DIR}/results
+		exit 1
+	else
+		echo "SUCCESS: base" >> ${LOGS_DIR}/results
+	fi
 }
 
 function build_bundle_image {
