@@ -31,6 +31,7 @@ function build_base_image {
 	if [ ${PIPESTATUS[0]} -gt 0 ]
 	then
 		echo "FAILED: base" >> ${LOGS_DIR}/results
+
 		exit 1
 	else
 		echo "SUCCESS: base" >> ${LOGS_DIR}/results
@@ -61,7 +62,6 @@ function build_bundle_image {
 	echo "Building Docker image ${build_id} based on ${2}."
 	echo ""
 
-	
 	LIFERAY_DOCKER_FIX_PACK_URL=${3} LIFERAY_DOCKER_RELEASE_FILE_URL=${2} LIFERAY_DOCKER_RELEASE_VERSION=${1} LIFERAY_DOCKER_TEST_HOTFIX_URL=${5} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${4} time ./build_bundle_image.sh ${BUILD_ALL_IMAGES_PUSH} 2>&1 | tee ${LOGS_DIR}/${build_id}".log"
 
 	local build_bundle_image_exit_code=${PIPESTATUS[0]}
@@ -74,6 +74,7 @@ function build_bundle_image {
 		then
 			echo "Detected a license failure while building image ${build_id}." > ${LOGS_DIR}/license-failure
 			echo "There is an existing license failure."
+
 			exit 4
 		fi
 	else
