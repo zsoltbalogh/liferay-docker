@@ -1,34 +1,9 @@
-# EXAMPLE USAGE
-# Refer for explanation to following link:
-# https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md
-#
-# pre-push:
-#   commands:
-#     packages-audit:
-#       tags: frontend security
-#       run: yarn audit
-#     gems-audit:
-#       tags: backend security
-#       run: bundle audit
-#
-# pre-commit:
-#   parallel: true
-#   commands:
-#     eslint:
-#       glob: "*.{js,ts}"
-#       run: yarn eslint {staged_files}
-#     rubocop:
-#       tags: backend style
-#       glob: "*.rb"
-#       exclude: "application.rb|routes.rb"
-#       run: bundle exec rubocop --force-exclusion {all_files}
-#     govet:
-#       tags: backend style
-#       files: git ls-files -m
-#       glob: "*.go"
-#       run: go vet {files}
-#   scripts:
-#     "hello.js":
-#       runner: node
-#     "any.go":
-#       runner: go run
+# On `git push` lefthook will run spelling and links check for all of the changed files
+pre-commit:
+  commands:
+    "shellchecker":
+      glob: "*.sh" # glob filter
+      run: validation/shellcheck {staged_files}
+    "beautysh":
+      glob: "*.sh" # glob filter
+      run: validation/beautysh.py --argument-order --check --english --force-function-style fnonly --function-order --indent-size 2 --line-end --tab {staged_files}
