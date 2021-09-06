@@ -287,12 +287,12 @@ class Beautify:
         for line in data.split('\n'):
             # If the line contains the [ character, then it's most likely an If statement, which could give us false positive
             # eval lines are currently not supported
-            if not "[" in line and not "eval" in line and regexp.search(line): 
+            if not "[" in line and not "eval" in line and regexp.search(line):
                 # Spliting the line into substrings by pipe or & characters
                 substrings = re.split(' [|&]{1,2} ',line)
                 # Saving the | and & characters for reconstruction
                 pipes = re.findall(' [|&]{1,2} ',line)
-                
+
                 for substring_index in range(len(substrings)):
                     first_index = 0
                     # Spliting the substring by spaces
@@ -316,7 +316,7 @@ class Beautify:
                                 else:
                                     arguments[splits[j]] = " %s"%(splits[j + 1])
                                     # Increment the last index, so we know where was the last argument
-                                    last_index = j + 1    
+                                    last_index = j + 1
                         # The first split will always be the command/script call
                         new_substring = splits[0]
                         # Adding the function letters back to the beginning of the line
@@ -331,13 +331,13 @@ class Beautify:
                             new_substring += " %s%s"%(ordered_agrument,arguments[ordered_agrument])
                         # The range between the last argument index and the length of the split is the non argument values
                         for j in range(last_index + 1, len(splits)):
-                            new_substring += " %s"%(splits[j])         
-                    # Else the substring does not contain any argument, thus can be reconstructed without any modification                 
+                            new_substring += " %s"%(splits[j])
+                    # Else the substring does not contain any argument, thus can be reconstructed without any modification
                     else:
                         new_substring = splits[0]
                         for j in range(1, splits_length):
-                            new_substring += " %s"%(splits[j])  
-                    
+                            new_substring += " %s"%(splits[j])
+
                     # If this is the first substring, then the new_line value will be overridden
                     if substring_index == 0:
                         new_line = new_substring
@@ -347,7 +347,7 @@ class Beautify:
 
                 if line != new_line:
                     errors[path] += "The file contains argument order issue(s).\n"
-                        
+
                 # Replacing the old line with the new
                 data = data.replace(line, new_line)
 
@@ -376,7 +376,7 @@ class Beautify:
                     start_line_number = -1
 
                 line_number += 1
-            
+
             new_data = ""
             # Adding all the lines before the first function declaration to the new_data string.
             for i in range(int(functions[list(functions)[0]].split(';')[0])):
@@ -410,7 +410,7 @@ class Beautify:
                 changed = True
             else:
                 break
-                       
+
         if changed:
             errors[path] += "The file contains empty last line(s)\n"
 
@@ -457,7 +457,7 @@ class Beautify:
                     if self.backup:
                         self.write_file(path + ".bak", data)
                     self.write_file(path, result)
-        
+
         if self.english:
             try:
                 result.encode(encoding='utf-8').decode('ascii')
