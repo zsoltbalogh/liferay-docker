@@ -3,7 +3,7 @@ pre-commit:
   commands:
     "shellchecker":
       glob: "*.sh" # glob filter
-      run: validation/shellcheck {staged_files}
+      run: docker run --rm -v "$PWD:/mnt" koalaman/shellcheck:v0.7.2 {staged_files}
     "beautysh":
       glob: "*.sh" # glob filter
       run: validation/beautysh.py --argument-order --check --english --force-function-style fnonly --function-order --indent-size 2 --line-end --tab {staged_files}

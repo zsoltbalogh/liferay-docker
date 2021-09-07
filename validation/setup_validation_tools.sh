@@ -12,8 +12,13 @@ function install_lefthook {
 	npm install @arkweid/lefthook --save-dev
 }
 
+function install_shellcheck {
+	docker pull koalaman/shellcheck:v0.7.2
+}
+
 function main {
 	install_lefthook
+	install_shellcheck
 	configure_lefthook
 }
 
