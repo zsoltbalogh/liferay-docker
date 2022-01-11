@@ -6,8 +6,11 @@ ARG LABEL_VCS_REF
 ARG LABEL_VCS_URL
 ARG LABEL_VERSION
 
+COPY --chown=root:root repositories/jammy.list /etc/apt/sources.list.d/jammy.list
+
 RUN apt-get update && \
-	apt-get install -y bash curl ffmpeg ghostscript gifsicle imagemagick jattach libnss3 libtcnative-1 telnet tree ttf-dejavu unzip zulu11-jdk=11.0.13-1 && \
+	apt-get install -t focal -y bash curl ghostscript gifsicle imagemagick jattach libnss3 libtcnative-1 telnet tree ttf-dejavu unzip zulu11-jdk=11.0.13-1 && \
+	apt-get install -t jammy -y ffmpeg && \
 	apt-get upgrade -y && \
 	apt-get clean
 
