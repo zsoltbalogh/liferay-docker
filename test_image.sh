@@ -197,7 +197,7 @@ function test_health_status {
 		local health_status=$(docker inspect --format="{{json .State.Health.Status}}" "${CONTAINER_ID}")
 		local license_status=$(docker logs ${CONTAINER_ID} 2> /dev/null | grep -c "License registered for DXP Development")
 
-		if [ ${license_status} -gt 0 ] && [ "${health_status}" == "\"healthy\"" ]
+		if ( [ ${license_status} -gt 0 ] || [[ ${LIFERAY_DOCKER_IMAGE_ID} == *liferay/portal:* ]] ) && [ "${health_status}" == "\"healthy\"" ]
 		then
 			echo ""
 
