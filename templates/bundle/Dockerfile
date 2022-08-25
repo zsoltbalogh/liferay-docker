@@ -18,7 +18,7 @@ ARG LABEL_VERSION
 ARG TARGETPLATFORM
 
 COPY --chown=liferay:liferay liferay /opt/liferay/
-COPY resources/usr/local/bin/* /usr/local/bin/
+COPY --chown=liferay:liferay resources/usr/local/bin/* /usr/local/bin/
 
 ENTRYPOINT ["tini", "--", "/usr/local/bin/liferay_entrypoint.sh"]
 

@@ -3,6 +3,9 @@
 source /usr/local/bin/_liferay_common.sh
 
 function main {
+	echo "[LIFERAY] Starting Zabbix Agent2."
+	echo ""
+
 	echo "[LIFERAY] To SSH into this container, run: \"docker exec -it ${HOSTNAME} /bin/bash\"."
 	echo ""
 
@@ -20,6 +23,8 @@ function main {
 	. set_java_version.sh
 
 	. configure_liferay.sh
+
+	. start_zabbix_agent.sh
 
 	execute_scripts /usr/local/liferay/scripts/pre-startup
 
