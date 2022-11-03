@@ -1,23 +1,21 @@
 import groovy.yaml.YamlSlurper
-import spock.lang.Ignore
-
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 class BuildSpec extends BaseOrcaSpec {
 
-    def "'build <version>' should create docker-compose.yml based on default config"(int timeoutSeconds) {
+    def "'build <version>' should create docker-compose.yml based on default config"() {
         when:
             // build some non-default (non-1.0.0) version
-            def orcaRun = orca.startOrca([:], 'build', '2.1.42')
-            orcaRun.waitFor(timeoutSeconds, TimeUnit.SECONDS)
-
-            def stdout = orcaRun.inputStream.getText('utf-8')
+            def orcaRun =
+                    startOrcaAndWatchIt(
+                            Duration.ofSeconds(30),
+                            [:],
+                            'build', '2.1.42')
 
         then:
-            !orcaRun.isAlive()
-            orcaRun.exitValue() == 0
+            orcaRun.process.exitValue() == 0
 
-            stdout.contains('Using the default single server configuration.')
+            orcaRun.stdout.contains('Using the default single server configuration.')
 
             def dockerCompose = new File(orca.buildsPath(), '2.1.42/docker-compose.yml')
             dockerCompose.isFile()
@@ -39,61 +37,42 @@ class BuildSpec extends BaseOrcaSpec {
             dockerComposeYaml.services.search?.image == 'search:2.1.42'
             dockerComposeYaml.services.vault?.image == 'vault:2.1.42'
             dockerComposeYaml.services.'web-server'?.image == 'web-server:2.1.42'
-
-        cleanup:
-            dumpOrcaStdoutToFile(stdout)
-            orcaRun.destroyForcibly()
-
-        where:
-            timeoutSeconds = 30
     }
 
-    def "'build <version>' with ORCA_HOST and ORCA_CONFIG should fail for non-matching host"(int timeoutSeconds) {
+    def "'build <version>' with ORCA_HOST and ORCA_CONFIG should fail for non-matching host"() {
         when:
-            // build some non-default (non-1.0.0) version
             def orcaRun =
-                    orca.startOrca(
-                            [
-                                    ORCA_CONFIG: 'three_servers',
-                                    ORCA_HOST: 'vm-999'
-                            ],
-                            'build', '2.1.42')
-            orcaRun.waitFor(timeoutSeconds, TimeUnit.SECONDS)
-
-            def stdout = orcaRun.inputStream.getText('utf-8')
+                startOrcaAndWatchIt(
+                        Duration.ofSeconds(30),
+                        [
+                                ORCA_CONFIG: 'three_servers',
+                                ORCA_HOST: 'vm-999'
+                        ],
+                        'build', '2.1.42')
 
         then:
-            !orcaRun.isAlive()
-            orcaRun.exitValue() == 1
+            orcaRun.process.exitValue() == 1
 
+            def stdout = orcaRun.stdout
             stdout.contains('Using configuration configs/three_servers.yml.')
             stdout.contains('Unable to find a matching host')
-
-        cleanup:
-            dumpOrcaStdoutToFile(stdout)
-            orcaRun.destroyForcibly()
-
-        where:
-            timeoutSeconds = 30
     }
 
-    def "'build <version>' with ORCA_HOST and ORCA_CONFIG should create docker-compose.yml based on provided config"(int timeoutSeconds) {
+    def "'build <version>' with ORCA_HOST and ORCA_CONFIG should create docker-compose.yml based on provided config"() {
         when:
-            // build some non-default (non-1.0.0) version
             def orcaRun =
-                    orca.startOrca(
+                    startOrcaAndWatchIt(
+                            Duration.ofSeconds(30),
                             [
                                     ORCA_CONFIG: 'three_servers',
                                     ORCA_HOST: 'vm-1'
                             ],
                             'build', '2.1.42')
-            orcaRun.waitFor(timeoutSeconds, TimeUnit.SECONDS)
-
-            def stdout = orcaRun.inputStream.getText('utf-8')
 
         then:
-            !orcaRun.isAlive()
-            orcaRun.exitValue() == 0
+            orcaRun.process.exitValue() == 0
+
+            def stdout = orcaRun.stdout
 
             stdout.contains('Using configuration configs/three_servers.yml.')
 
@@ -115,34 +94,21 @@ class BuildSpec extends BaseOrcaSpec {
 
             // no other services except the wanted ones
             dockerComposeYaml.services.size() == 5
-
-        cleanup:
-            dumpOrcaStdoutToFile(stdout)
-            orcaRun.destroyForcibly()
-
-        where:
-            timeoutSeconds = 30
     }
 
-    def "'build <empty>' should print help message"(int timeoutSeconds) {
+    def "'build <empty>' should print help message"() {
         when:
-            def orcaRun = orca.startOrca([:], 'build')
-
-            orcaRun.waitFor(timeoutSeconds, TimeUnit.SECONDS)
-
-            def stdout = orcaRun.inputStream.getText('utf-8')
+            def orcaRun =
+                    startOrcaAndWatchIt(
+                            Duration.ofSeconds(5),
+                            [:],
+                            'build')
 
         then:
-            !orcaRun.isAlive()
-            orcaRun.exitValue() != 0
+            orcaRun.process.exitValue() != 0
+
+            def stdout = orcaRun.stdout
 
             stdout.contains('Usage: scripts/build_services.sh <version>')
-
-        cleanup:
-            orcaRun.destroyForcibly()
-            dumpOrcaStdoutToFile(stdout)
-
-        where:
-            timeoutSeconds = 5
     }
 }
