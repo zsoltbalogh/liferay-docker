@@ -45,6 +45,8 @@ interface Orca {
 
         featureTestResultsDir.deleteDir()
         featureTestResultsDir.mkdirs()
+
+        println "Testing feature '${featureName} (#${iterationIndex})'..."
     }
 
     // after one Orca run (~ 1 Spock spec)
@@ -52,7 +54,7 @@ interface Orca {
         def buildsPath = buildsPath()
         def sharedVolumePath = sharedVolumePath()
 
-        // archive the results
+        // archive the results - files written by Orca
         def featureTestResultsDir = featureTestResultsDir(specName, featureName, iterationIndex)
         FileUtils.copyDirectory(buildsPath, new File(featureTestResultsDir, buildsPath.name))
         FileUtils.copyDirectory(sharedVolumePath, new File(featureTestResultsDir, sharedVolumePath.name))
@@ -66,9 +68,9 @@ ${orcaRun.orcaEnvVars ? (orcaRun.orcaEnvVars.collect { k, v -> "#  * ${k}=${v}"}
 
 ${orcaRun.stdout}"""
 
-        print "Feature run results (Orca builds dir, shared volume, stdout as a file...) archived in '${featureTestResultsDir.absolutePath}'"
+        println "Results of feature '${featureName} (#${iterationIndex})' archived in '${featureTestResultsDir.absolutePath}'"
 
-        // clean the "build" dirs of ORCA
+        // clean the "build" dirs of Orca
         FileUtils.cleanDirectory(buildsPath)
         FileUtils.cleanDirectory(sharedVolumePath)
     }
