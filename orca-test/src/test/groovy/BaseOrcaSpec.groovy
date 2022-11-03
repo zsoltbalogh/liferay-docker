@@ -1,5 +1,14 @@
+
+
 import spock.lang.Shared
 import spock.lang.Specification
+import test.DockerOrca
+import test.NativeOrca
+import test.Orca
+import test.OrcaRun
+
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Josef Sustacek
@@ -14,26 +23,47 @@ class BaseOrcaSpec extends Specification {
         default -> throw new IllegalArgumentException("Orca test runtime '${ORCA_TEST_RUNTIME_IMPL}' unknown.")
     }
 
+    // Each feature will run Orca at-most once, this object will hold the reference to the process
+    OrcaRun featureOrcaRun
+
+    def setupSpec() {
+        orca.setupSpec()
+    }
+
+    def cleanupSpec() {
+        orca.cleanupSpec()
+    }
+
     def setup() {
-        orca.setup()
+        def specName = specificationContext.currentSpec.name
+        def featureName = specificationContext.currentFeature.displayName
+        def iterationIndex = specificationContext.currentIteration.iterationIndex
+
+        orca.setup(specName, featureName, iterationIndex)
     }
 
     def cleanup() {
-        orca.cleanup()
+        def specName = specificationContext.currentSpec.name
+        def featureName = specificationContext.currentFeature.displayName
+        def iterationIndex = specificationContext.currentIteration.iterationIndex
+
+        orca.cleanup(specName, featureName, iterationIndex, featureOrcaRun)
     }
 
-    /**
-     * Writes given stdout content (String) into a file in Orca build dir, so that
-     * it can be archived.
-     *
-     * NOTE: When invoking this method multiple times per-feature, use varying
-     * <code>fileNameSuffix</code> parameter for the calls.
-     * @param stdout
-     * @return
-     */
-    def dumpOrcaStdoutToFile(String stdout, String fileNameSuffix = '') {
-        def targetFile = new File(orca.buildsPath(), "_orca-stdout${fileNameSuffix}.txt")
+    OrcaRun startOrcaAndWatchIt(Duration timeout, Map envVars, String... orcaArgs) {
+        def orcaArgsList = (orcaArgs ? orcaArgs.toList() : [])
 
-        targetFile.text = stdout
+        def orcaProcess = orca.startOrca(envVars, orcaArgsList)
+
+        orcaProcess.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)
+
+        def stdout = orcaProcess.inputStream.getText('utf-8')
+
+        orcaProcess.destroyForcibly()
+
+        featureOrcaRun = new OrcaRun(envVars, orcaArgsList, orcaProcess, stdout)
+
+        return featureOrcaRun
     }
+
 }
