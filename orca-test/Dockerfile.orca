@@ -1,12 +1,21 @@
 # syntax=docker/dockerfile:1.4
 # https://hub.docker.com/_/ubuntu/tags?page=1&name=jammy
-FROM ubuntu:jammy
+
+# Must be passes explicitly, originates in gradle.properties
+ARG ORCA_BASE_DOCKER_IMAGE
+
+FROM $ORCA_BASE_DOCKER_IMAGE
 
 # TARGETARCH comes from Docker itself, requires BuildKit
 ARG TARGETARCH
 
 # Users can always overide the arch to fetch yq, using --build-arg
 ARG YQ_CPU_ARCH=$TARGETARCH
+
+# Prevent 'tzdata' (in 20.04) to ask interactively for timezone
+# https://serverfault.com/questions/949991/how-to-install-tzdata-on-a-ubuntu-docker-image
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Los_Angeles
 
 # /orca/scripts/install_orca.sh installs 'yq' using 'snap', which is Ubuntu Desktop mainly; install yq manually
 #   * https://lindevs.com/install-yq-on-ubuntu/
