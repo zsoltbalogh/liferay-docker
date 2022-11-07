@@ -50,6 +50,7 @@ docker {
     ])
 
     buildArgs([
+            ORCA_BASE_DOCKER_IMAGE: project.findProperty('orca.base.docker.image'),
             ORCA_HOME_CURRENT_COMMIT: orca_home_container_path
     ])
 
