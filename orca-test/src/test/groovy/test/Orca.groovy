@@ -37,13 +37,15 @@ interface Orca {
     default void setup(String specName, String featureName, int iterationIndex) {
         // expected to be present for the 'docker -v ...' mounts, so need to be created
         // before the RUN command is executed
+        FileUtils.deleteQuietly(sharedVolumePath())
         sharedVolumePath().mkdirs()
+        FileUtils.deleteQuietly(buildsPath())
         buildsPath().mkdirs()
 
         // where results will be written
         def featureTestResultsDir = featureTestResultsDir(specName, featureName, iterationIndex)
 
-        featureTestResultsDir.deleteDir()
+        FileUtils.deleteQuietly(featureTestResultsDir)
         featureTestResultsDir.mkdirs()
 
         println "Testing feature '${featureName} (#${iterationIndex})'..."
@@ -71,8 +73,8 @@ ${orcaRun.stdout}"""
         println "Results of feature '${featureName} (#${iterationIndex})' archived in '${featureTestResultsDir.absolutePath}'"
 
         // clean the "build" dirs of Orca
-        FileUtils.cleanDirectory(buildsPath)
-        FileUtils.cleanDirectory(sharedVolumePath)
+        FileUtils.deleteQuietly(buildsPath)
+        FileUtils.deleteQuietly(sharedVolumePath)
     }
 
     // helper methods

@@ -8,7 +8,7 @@ class BuildSpec extends BaseOrcaSpec {
             // build some non-default (non-1.0.0) version
             def orcaRun =
                     startOrcaAndWatchIt(
-                            Duration.ofSeconds(30),
+                            Duration.ofSeconds(60),
                             [:],
                             'build', '2.1.42')
 
