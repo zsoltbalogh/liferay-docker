@@ -1,0 +1,39 @@
+name: Orca tests
+on: [ push, pull_request ]
+jobs:
+  run-orca-test_docker:
+    strategy:
+      fail-fast: false
+      matrix:
+        orca_base_docker_image:
+          - 'ubuntu:jammy'
+          - 'ubuntu:focal'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Create Liferay license file (mock)
+        run: echo '<?xml version="1.0"?><license>...</license>' > orca/configs/liferay-license.xml
+      - run: docker version
+      - name: Run orca-test with Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          DOCKER_BUILDKIT: 1
+        with:
+          build-root-directory: orca-test
+          arguments: |
+            test
+            -Porca.runtime.impl=docker
+            -Porca.docker.base.docker.image=${{ matrix.orca_base_docker_image }}
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          junit_files: "orca-test/build/test-results/test/**/*.xml"
+          check_name: Test Results (docker Orca runtime, ${{ matrix.orca_base_docker_image }})
