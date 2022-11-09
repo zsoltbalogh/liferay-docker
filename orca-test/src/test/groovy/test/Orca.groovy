@@ -15,10 +15,12 @@ interface Orca {
     }
     List<String> orcaRunCommandParts()
 
+    File orcaWorkingDir()
+
     default Process startOrca(Map envVars, List<String> orcaArgs) {
         def orca = orcaRunCommandParts() + orcaArgs
 
-        return startSubProcess(envVars, orca.toArray(new String[0]))
+        return startSubProcess(orcaWorkingDir(), envVars, orca.toArray(new String[0]))
     }
 
     default File featureTestResultsDir(String specName, String featureName, int iterationIndex) {
@@ -78,19 +80,23 @@ ${orcaRun.stdout}"""
     }
 
     // helper methods
-    default ProcessBuilder buildSubProcess(Map envVars, String... command) {
+    default ProcessBuilder buildSubProcess(File workingDir, Map envVars, String... command) {
         def pb = new ProcessBuilder(command)
         pb.redirectErrorStream(true)
+
+        if (workingDir) {
+            pb.directory(workingDir)
+        }
 
         pb = applyEnvVars(pb, envVars)
 
         return pb
     }
 
-    default Process startSubProcess(Map envVars, String... command) {
-        def processBuilder = buildSubProcess(envVars, command)
+    default Process startSubProcess(File workingDir, Map envVars, String... command) {
+        def processBuilder = buildSubProcess(workingDir, envVars, command)
 
-        println "Starting sub-process: \n  " + processBuilder.command().join(' ')
+        println "Starting sub-process ${workingDir ? "(workingDir: ${workingDir})" : ''}: \n  " + processBuilder.command().join(' ')
 
         // merge stdout + stderr
         processBuilder.redirectErrorStream(true)
@@ -107,26 +113,36 @@ ${orcaRun.stdout}"""
 
 class NativeOrca implements Orca {
 
+    // set by Gradle                      ¨
+    private final String ORCA_HOME = System.getProperty('ORCA_TEST_NATIVE__ORCA_HOME')
+
     File sharedVolumePath() {
         // as hard-coded in ORCA sources
         return new File('/opt/liferay/shared-volume')
     }
 
-    @Override
     File buildsPath() {
-        // as hard-coded in ORCA sources
-        return new File('/opt/liferay/orca/builds')
+        // as hard-coded in ORCA sources, but relative to the Orca home under test
+        return new File(ORCA_HOME, 'builds')
     }
 
-    @Override
+    File orcaWorkingDir() {
+        // as hard-coded in ORCA sources, but relative to the Orca home under test
+        return new File(ORCA_HOME, 'scripts')
+    }
+
     List<String> orcaRunCommandParts() {
-        // has to be in $PATH
-        return 'orca'
+        return [
+                new File(new File(ORCA_HOME, 'scripts'), 'orca.sh').absolutePath
+        ]
     }
 
     ProcessBuilder applyEnvVars(ProcessBuilder subProcessBuilder, Map envVarsToSet) {
         // set ENV on the subprocess itself
         subProcessBuilder.environment().putAll(envVarsToSet ?: [:])
+
+//        println "XXX envVarsToSet: " + envVarsToSet
+//        println "XXX subProcessBuilder.environment(): " + subProcessBuilder.environment()
 
         return subProcessBuilder
     }
@@ -141,6 +157,11 @@ class DockerOrca implements Orca {
 
     File buildsPath() {
         return new File(System.getProperty('ORCA_TEST_DOCKER__BUILDS_PATH'))
+    }
+
+    File orcaWorkingDir() {
+        // does not matter for Docker runtime
+        return null
     }
 
     ProcessBuilder applyEnvVars(ProcessBuilder subProcessBuilder, Map envVarsToSet) {
@@ -187,7 +208,7 @@ class DockerOrca implements Orca {
 
     void setup() {
         def orcaCleanBeforeRun =
-                startSubProcess([:], orcaCleanBeforeRunCommandParts().toArray(new String[0]))
+                startSubProcess(null, [:], orcaCleanBeforeRunCommandParts().toArray(new String[0]))
 
         orcaCleanBeforeRun.waitFor(15, TimeUnit.SECONDS)
 
