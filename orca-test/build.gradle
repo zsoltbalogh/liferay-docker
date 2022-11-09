@@ -35,6 +35,10 @@ dependencies {
 ext {
     // the location inside the image where the Orca sources from the current commit will be placed
     orca_home_container_path = '/orca_current-commit'
+    // the Orca sources in this repo (../orca)
+    orca_sources = project.findProperty('orca.native.orca.home.dir')
+    // the Orca used to execute tests in 'native' mode, will be a copy of 'orca_sources'
+    orca_sources_target = "${project.buildDir}/orca"
 }
 
 // Define how the testing container (with Orca scripts inside) will look like
@@ -44,13 +48,10 @@ docker {
     dockerfile project.file('Dockerfile.orca')
 
     // build the context for the COPY instructions used inside the Dockerfile.orca
-    files ([
-            new File(projectDir.parentFile, 'orca'),    // the Orca sources in this repo
-            'src/test/resources/orca-overrides'         // test's additions for Orca files
-    ])
+    files orca_sources_target
 
     buildArgs([
-            ORCA_BASE_DOCKER_IMAGE: project.findProperty('orca.base.docker.image'),
+            ORCA_BASE_DOCKER_IMAGE: project.findProperty('orca.docker.base.docker.image'),
             ORCA_HOME_CURRENT_COMMIT: orca_home_container_path
     ])
 
@@ -58,29 +59,52 @@ docker {
     noCache false
 }
 
+
+tasks.register('buildOrca', Copy) {
+    from project.ext.orca_sources
+    from 'src/test/resources/orca-overrides'
+
+    into project.ext.orca_sources_target
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    doFirst {
+        if(!file(project.ext.orca_sources).isDirectory()) {
+            throw new InvalidUserDataException(
+                    "Orca sources path '${project.ext.orca_sources}' (configured with orca.native.orca.home.dir) does not exist.")
+        }
+    }
+}
+
+tasks.findByName('dockerPrepare').dependsOn('buildOrca')
+
 ext {
-    orca_test__runtime_impl = 'docker'  // the only supported for now; in the future, it will be read from Gradle args / properties
+    orca_test__runtime_impl = project.findProperty('orca.runtime.impl') // 'docker' vs. 'native'
+
+    orca_test_native__orca_home = file(orca_sources_target).absolutePath
+
+    orca_test_docker__executable_path =
     orca_test_docker__shared_volume_host_path = file("${project.buildDir}/orca-test/orca_shared-volume")
     orca_test_docker__builds_host_path = file("${project.buildDir}/orca-test/orca_builds")
 
-    orca_container_name = 'orca-test'
+    orca_test_docker__container_name = 'orca-test'
 
-    orca_command_parts_separator = '_###_'
-    orca_run_command_parts = [
+    orca_test_docker__command_parts_separator = '_###_'
+    orca_test_docker__run_command_parts = [
             'docker',
             'run',
             '--rm',
             '-v', '/var/run/docker.sock:/var/run/docker.sock',
             '-v', "${orca_test_docker__shared_volume_host_path}:/opt/liferay/shared-volume",
             '-v', "${orca_test_docker__builds_host_path}:${orca_home_container_path}/builds",
-            '--name', orca_container_name,
+            '--name', orca_test_docker__container_name,
             docker.name
     ]
-    orca_clean_command_parts = [
+    orca_test_docker__clean_command_parts = [
             'docker',
             'rm',
             '-f',
-            orca_container_name
+            orca_test_docker__container_name
     ]
 }
 
@@ -89,10 +113,13 @@ test {
     
     systemProperty 'ORCA_TEST__RUNTIME_IMPL', orca_test__runtime_impl
 
+    // Used just by the 'native' impl, see NativeOrca.groovy
+    systemProperty 'ORCA_TEST_NATIVE__ORCA_HOME', orca_test_native__orca_home
+
     // Used just by the 'docker' impl, see DockerOrca.groovy
-    systemProperty 'ORCA_TEST_DOCKER__COMMAND_PARTS_SEPARATOR', orca_command_parts_separator
-    systemProperty 'ORCA_TEST_DOCKER__RUN_COMMAND_PARTS', orca_run_command_parts.join(orca_command_parts_separator)
-    systemProperty 'ORCA_TEST_DOCKER__CLEAN_COMMAND_PARTS', orca_clean_command_parts.join(orca_command_parts_separator)
+    systemProperty 'ORCA_TEST_DOCKER__COMMAND_PARTS_SEPARATOR', orca_test_docker__command_parts_separator
+    systemProperty 'ORCA_TEST_DOCKER__RUN_COMMAND_PARTS', orca_test_docker__run_command_parts.join(orca_test_docker__command_parts_separator)
+    systemProperty 'ORCA_TEST_DOCKER__CLEAN_COMMAND_PARTS', orca_test_docker__clean_command_parts.join(orca_test_docker__command_parts_separator)
     systemProperty 'ORCA_TEST_DOCKER__SHARED_VOLUME_PATH', orca_test_docker__shared_volume_host_path
     systemProperty 'ORCA_TEST_DOCKER__BUILDS_PATH', orca_test_docker__builds_host_path
 
@@ -107,7 +134,9 @@ test {
 tasks.getByName('test').configure {
     outputs.upToDateWhen { false }
 
-    if (orca_test__runtime_impl == 'docker') {
+    dependsOn 'buildOrca'
+
+    if (project.ext.orca_test__runtime_impl == 'docker') {
         dependsOn 'docker'
     }
 }

@@ -49,21 +49,22 @@ RUN <<INSTALL_ORCA
 
     docker version --format 'Docker (Client Version): {{.Client.Version}}' || true
 
-    # The previous actually pulls "master" from github, so we'd not be testing the current version in this commit, but the latest one... \
-    # Override the /usr/local/bin/orca (~ orca on PATH)
+    # The previous actually pulls "master" from github, so with 'orca' we'd not be testing the current version
+    # in this commit, but the latest one in 'master'...
+    # Override the /usr/local/bin/orca (~ 'orca' on PATH)
     $ORCA_HOME_CURRENT_COMMIT/scripts/orca.sh install
 
     cat /usr/local/bin/orca
 INSTALL_ORCA
 
-WORKDIR $ORCA_HOME_CURRENT_COMMIT
-
-# Environment variables recogned by Orca, AFAIK
+# Environment variables recognized by Orca, AFAIK
 ENV ORCA_DB_BOOTSTRAP=""
 ENV ORCA_DB_SKIP_WAIT=""
 ENV ORCA_CONFIG=""
 ENV ORCA_HOST=""
 
-ENTRYPOINT [ "orca" ]
+WORKDIR $ORCA_HOME_CURRENT_COMMIT
+
+ENTRYPOINT [ "scripts/orca.sh" ]
 # there is no "help" command, <empty> actually prints help and exits
 CMD [ "" ]
