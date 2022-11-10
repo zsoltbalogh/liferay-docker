@@ -5,9 +5,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        orca_base_docker_image:
-          - 'ubuntu:jammy'
-          - 'ubuntu:focal'
+        orca_base_docker_image_name:
+          - 'ubuntu'
+        orca_base_docker_image_version:
+          - 'jammy'
+          - 'focal'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -30,13 +32,21 @@ jobs:
           arguments: |
             test
             -Porca.runtime.impl=docker
-            -Porca.docker.base.docker.image=${{ matrix.orca_base_docker_image }}
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+            -Porca.docker.base.docker.image=${{ matrix.orca_base_docker_image_name }}:${{ matrix.orca_base_docker_image_version }}
+      - name: Upload Test Results
         if: always()
+        uses: actions/upload-artifact@v2
         with:
-          junit_files: "orca-test/build/test-results/test/**/*.xml"
-          check_name: Test Results (docker Orca runtime, ${{ matrix.orca_base_docker_image }})
+          # ':' not allowed in name
+          name: test-results_native_${{ matrix.orca_base_docker_image_name }}-${{ matrix.orca_base_docker_image_version }}
+          path: "orca-test/build/test-results/test/**/*.xml"
+
+#      - name: Publish Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@v2
+#        if: always()
+#        with:
+#          junit_files: "orca-test/build/test-results/test/**/*.xml"
+#          check_name: Test Results (docker Orca runtime, ${{ matrix.orca_base_docker_image_name }}-${{ matrix.orca_base_docker_image_version }})
 
   run-orca-test_native:
     strategy:
@@ -74,9 +84,46 @@ jobs:
             test
             -Porca.runtime.impl=native
             -Porca.native.orca.home.dir=../orca
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results_native_${{ matrix.runs_on }}
+          path: "orca-test/build/test-results/test/**/*.xml"
+
+#      - name: Publish Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@v2
+#        if: always()
+#        with:
+#          junit_files: "orca-test/build/test-results/test/**/*.xml"
+#          check_name: Test Results (native Orca runtime, ${{ matrix.runs_on }})
+
+  publish-test-results:
+    name: "Publish Tests Results"
+    needs:
+      - run-orca-test_docker
+      - run-orca-test_native
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+
+      # only needed unless run with comment_mode: off
+      pull-requests: write
+
+      # only needed for private repository
+      contents: read
+
+      # only needed for private repository
+      issues: read
+    if: always()
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
         with:
-          junit_files: "orca-test/build/test-results/test/**/*.xml"
-          check_name: Test Results (native Orca runtime, ${{ matrix.runs_on }})
+          junit_files: "artifacts/**/*.xml"
