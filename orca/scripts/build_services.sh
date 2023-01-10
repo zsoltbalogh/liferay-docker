@@ -170,7 +170,15 @@ function build_service_log_proxy {
 	write 1 "    hostname: ${SERVICE_HOST}"
 	write 1 "    image: log-proxy:${VERSION}"
 	write 1 "    volumes:"
-	write 1 "        - /var/run/docker.sock:/var/run/docker.sock"
+	if [ -e /run/user/${UID}/docker.socket ]
+        then
+                echo "Non-root docker configuration detected. Using /run/user/<uid>/docker.sock file"
+                write 1 "        - /run/user/${UID}/docker.sock:/var/run/docker.sock"
+        else
+
+                echo "Root docker configuration detected. Using /var/run/docker.sock file"
+                write 1 "        - /var/run/docker.sock:/var/run/docker.sock"
+        fi
 }
 
 function build_service_log_server {
