@@ -27,21 +27,25 @@ function create_password {
 function create_policies {
 	for policy in policy_*.hcl
 	do
-		vault policy write shared ${policy}
+		echo "policy name ${policy}"
+		local policy_name=${policy#"policy_"}
+		local policy_name=${policy_name%".hcl"}
+		#echo ${policy_name}
+		vault policy write ${policy_name} ${policy}
 	done
 }
 
 function create_service_password {
-	vault auth enable -path="userpass-${1}" userpass >/dev/null
+	vault auth enable -path="userpass-${1}" userpass #>/dev/null
 
 	local password=$(pwgen -1 -s 20)
 
-	vault write auth/userpass-${1}/users/${1} password="${password}" policies="${1}" >/dev/null
+	vault write auth/userpass-${1}/users/${1} password="${password}" policies="${1}" #>/dev/null
 
 	local accessor_id=$(vault auth list -format=json | jq -r '.["userpass-backup/"].accessor')
 	local entity_id=$(vault write -format=json identity/entity name="shared" policies="shared" | jq -r ".data.id")
 
-	vault write identity/entity-alias name="${1}" canonical_id="${entity_id}" mount_accessor="${accessor_id}" >/dev/null
+	vault write identity/entity-alias name="${1}" canonical_id="${entity_id}" mount_accessor="${accessor_id}" #>/dev/null
 
 	echo ${password}
 }

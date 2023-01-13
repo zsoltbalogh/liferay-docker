@@ -1,4 +1,4 @@
-FROM bitnami/mariadb-galera:10.4
+FROM bitnami/mariadb-galera:10.5
 
 USER 0
 
