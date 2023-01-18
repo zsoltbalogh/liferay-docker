@@ -30,7 +30,7 @@ function create_policies {
 		echo "policy name ${policy}"
 		local policy_name=${policy#"policy_"}
 		local policy_name=${policy_name%".hcl"}
-		#echo ${policy_name}
+		
 		vault policy write ${policy_name} ${policy}
 	done
 }

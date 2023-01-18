@@ -49,7 +49,6 @@ function build_service_db {
 	write 1 "${SERVICE_NAME}:"
 	write 1 "    container_name: ${SERVICE_NAME}"
 	write 1 "    environment:"
-	write 1 "        - ALLOW_EMPTY_PASSWORD=yes"
 	write 1 "        - MARIADB_DATABASE=lportal"
 	write 1 "        - MARIADB_EXTRA_FLAGS=--character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --wsrep_provider_options=ist.recv_addr=${host_ip}:4568;ist.recv_bind=0.0.0.0:4568 --wsrep_node_incoming_address=${host_ip} --wsrep_sst_receive_address=${host_ip}"
 	write 1 "        - MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://$(query_services db host_port 4567 true)"
