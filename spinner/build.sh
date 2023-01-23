@@ -8,6 +8,20 @@ function build_docker_images {
 }
 
 function check_usage {
+	function normalize_path(){
+		if [[ ! "${MSYSTEM}" =~ .*"MINGW".* ]]
+		then
+			echo ${1}
+
+			return
+		fi
+
+		path=${1}
+		normalized_path= echo ${path:1} | sed -r "s/(.{1})/\1:/"
+		
+		echo ${normalized_path}
+	}
+
 	check_utils docker
 
 	if [[ "${MSYSTEM}" =~ .*"MINGW".* ]] && [[ $MSYS_NO_PATHCONV -ne 1 ]]
@@ -54,7 +68,7 @@ function check_usage {
 	fi
 
 	STACK_NAME="env-${ENVIRONMENT}-"$(date +%s)
-	STACK_DIR=$(pwd)/${STACK_NAME}
+	STACK_DIR=$(normalize_path $(pwd)/${STACK_NAME})
 
 	mkdir -p "${STACK_DIR}"
 }
