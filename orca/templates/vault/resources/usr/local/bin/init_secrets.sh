@@ -69,6 +69,8 @@ function init_operator {
 }
 
 function main {
+	wait_for_vault
+
 	init_operator
 
 	create_password mysql_backup_password
@@ -85,6 +87,22 @@ function main {
 	echo "Please save the following secrets to 1Password:"
 	echo "Root Token: ${VAULT_TOKEN}"
 	echo "Unseal key: ${UNSEAL_KEY}"
+}
+
+function wait_for_vault {
+	while true
+	do
+		if (vault status | grep Initialized &>/dev/null)
+		then
+			echo "Vault server is available."
+
+			break
+		fi
+
+		echo "Waiting for the server become available."
+
+		sleep 1
+	done
 }
 
 main
