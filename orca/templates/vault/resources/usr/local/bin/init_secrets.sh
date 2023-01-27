@@ -1,18 +1,9 @@
 #!/bin/bash
 
-function check_usage {
-	if [ ! -n "${ORCA_VAULT_TOKEN}" ]
-	then
-		echo "Set the environment variable ORCA_VAULT_TOKEN."
-
-		exit 1
-	fi
-
-	export VAULT_TOKEN="${ORCA_VAULT_TOKEN}"
-}
+source /usr/local/bin/_common.sh
 
 function create_password {
-	if ( ! vault kv get secret/data/${1} > /dev/null 2>&1 )
+	if (! vault kv get secret/data/${1} &>/dev/null)
 	then
 		local password=$(pwgen -1 -s 20)
 
@@ -38,7 +29,14 @@ function create_policies {
 function create_service_password {
 	vault auth enable -path="userpass-${1}" userpass >/dev/null
 
-	local password=$(pwgen -1 -s 20)
+	local password
+
+	if [ "${ORCA_DEVELOPMENT_MODE}" == "true" ]
+	then
+		password="development"
+	else
+		password=$(pwgen -1 -s 20)
+	fi
 
 	vault write auth/userpass-${1}/users/${1} password="${password}" policies="${1}" >/dev/null
 
@@ -50,20 +48,81 @@ function create_service_password {
 	echo ${password}
 }
 
-function main {
-	check_usage
+function init_operator {
+	local operator_init=$(vault operator init -key-shares=1 -key-threshold=1)
 
-	vault secrets enable -path=secret kv >/dev/null 2>&1
+	UNSEAL_KEY=$(echo "${operator_init}" | grep "Unseal Key 1:")
+	UNSEAL_KEY=${UNSEAL_KEY##*: }
+
+	VAULT_TOKEN=$(echo "${operator_init}" | grep "Initial Root Token:")
+	VAULT_TOKEN=${VAULT_TOKEN##*: }
+
+	vault operator unseal "${UNSEAL_KEY}" >/dev/null
+
+	export VAULT_TOKEN
+
+	wait_for_operator "\"standby\": false"
+
+	vault secrets enable -path=secret kv
+}
+
+function main {
+	wait_for_vault
+
+	init_operator
 
 	create_password mysql_backup_password
 	create_password mysql_liferay_password
 	create_password mysql_root_password
 
+	SERVICES=("backup" "db" "liferay")
+
+	declare -A service_passwords
+
+	for service in "${SERVICES[@]}"
+	do
+		service_passwords[${service}]=$(create_service_password ${service})
+	done
+
 	create_policies
 
-	echo "echo \"$(create_service_password backup)\" > /opt/liferay/passwords/BACKUP"
-	echo "echo \"$(create_service_password db)\" > /opt/liferay/passwords/DB"
-	echo "echo \"$(create_service_password liferay)\" > /opt/liferay/passwords/LIFERAY"
+	save_secrets
+}
+
+function save_secrets {
+	if [ "${ORCA_DEVELOPMENT_MODE}" == "true" ]
+	then
+		echo "${UNSEAL_KEY}" > /opt/liferay/vault/data/unseal_key
+		echo "${VAULT_TOKEN}" > /opt/liferay/vault/data/root-token
+	else
+		echo "Distribute the serice passwords to the hosts which run them:"
+
+		for service in "${SERVICES[@]}"
+		do
+			echo "echo \"${service_passwords[${service}]}\" > /opt/liferay/passwords/${service^^}"
+		done
+
+		echo ""
+		echo "Please save the following secrets to 1Password:"
+		echo "Root token: ${VAULT_TOKEN}"
+		echo "Unseal key: ${UNSEAL_KEY}"
+	fi
+}
+
+function wait_for_vault {
+	while true
+	do
+		if (vault status | grep Initialized &>/dev/null)
+		then
+			echo "Vault server is available."
+
+			break
+		fi
+
+		echo "Waiting for the vault server to become available."
+
+		sleep 1
+	done
 }
 
 main

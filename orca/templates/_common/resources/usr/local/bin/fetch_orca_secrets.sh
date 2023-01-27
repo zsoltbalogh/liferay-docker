@@ -1,7 +1,12 @@
 #!/bin/bash
 
 function check_usage {
-	if [ ! -n "${ORCA_VAULT_ADDRESSES}" ] ||  [ ! -n "${ORCA_VAULT_SERVICE_PASSWORD}" ]
+	if [ "${ORCA_DEVELOPMENT_MODE}" == "true" ]
+	then
+		ORCA_VAULT_SERVICE_PASSWORD="development"
+	fi
+
+	if [ ! -n "${ORCA_VAULT_ADDRESSES}" ] || [ ! -n "${ORCA_VAULT_SERVICE_PASSWORD}" ]
 	then
 		echo "Set the environment variables ORCA_VAULT_ADDRESSES and ORCA_VAULT_SERVICE_PASSWORD."
 
@@ -10,7 +15,7 @@ function check_usage {
 }
 
 function get_token {
-	local token=$(curl --fail --request POST --silent "http://${ORCA_VAULT_ADDRESSES}/v1/auth/userpass-${1}/login/${1}" --data '{"password": "'${ORCA_VAULT_SERVICE_PASSWORD}'"}');
+	local token=$(curl --fail --request POST --silent "http://${ORCA_VAULT_ADDRESSES}/v1/auth/userpass-${1}/login/${1}" --data '{"password": "'${ORCA_VAULT_SERVICE_PASSWORD}'"}')
 
 	token=${token##*client_token\":\"}
 	token=${token%%\"*}
