@@ -1,0 +1,15 @@
+# Begin generated Teleport configuration for localhost by tsh
+
+# Common flags for all localhost hosts
+Host *.localhost localhost
+    UserKnownHostsFile "/home/tompos/.tsh/known_hosts"
+    IdentityFile "/home/tompos/.tsh/keys/localhost/tomposmiko"
+    CertificateFile "/home/tompos/.tsh/keys/localhost/tomposmiko-ssh/localhost-cert.pub"
+    HostKeyAlgorithms rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com
+
+# Flags for all localhost hosts except the proxy
+Host *.localhost !localhost
+    Port 3022
+    ProxyCommand "/opt/Teleport Connect/resources/bin/tsh" proxy ssh --cluster=localhost --proxy=localhost %r@%h:%p
+
+# End generated Teleport configuration

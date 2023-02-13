@@ -278,6 +278,34 @@ function build_service_search {
 	write 1 "        - \"9300:9300\""
 }
 
+function build_service_teleport_agent_test {
+        docker_build teleport-agent-test
+
+        write 1 "${SERVICE_NAME}:"
+        write 1 "    container_name: ${SERVICE_NAME}"
+        write 1 "    hostname: ${SERVICE_HOST}"
+        write 1 "    image: teleport-agent-test:${VERSION}"
+        write 1 "    ports:"
+        write 1 "        - \"22:22\""
+        write 1 "    volumes:"
+        write 1 "        - /opt/liferay/teleport/teleport-agent-test/ssh:/etc/ssh/teleport"
+}
+
+function build_service_teleport_proxy {
+        docker_build teleport-proxy
+
+        write 1 "${SERVICE_NAME}:"
+        write 1 "    container_name: ${SERVICE_NAME}"
+        write 1 "    hostname: ${SERVICE_HOST}"
+        write 1 "    image: teleport-proxy:${VERSION}"
+        write 1 "    ports:"
+        write 1 "        - \"3025:3025\""
+        write 1 "        - \"3080:3080\""
+        write 1 "    volumes:"
+        write 1 "        - /opt/liferay/teleport/data:/var/lib/teleport"
+        write 1 "        - /opt/liferay/teleport/teleport-agent-test/ssh:/etc/ssh/export"
+}
+
 function build_service_vault {
 	docker_build vault
 
