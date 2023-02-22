@@ -285,7 +285,7 @@ function build_service_vault {
 	write 1 "    container_name: ${SERVICE_NAME}"
 	write 1 "    environment:"
 	write 1 "        - ORCA_DEVELOPMENT_MODE=$(query_configuration .development)"
-	write 1 "        - VAULT_RAFT_NODE_ID=${HOST}"
+	write 1 "        - VAULT_RAFT_NODE_ID=${ORCA_HOST}"
 	write 1 "    hostname: ${SERVICE_HOST}"
 	write 1 "    image: vault:${VERSION}"
 	write 1 "    ports:"
@@ -407,7 +407,11 @@ function choose_configuration {
 }
 
 function docker_build {
-	docker build \
+	docker \
+		-l warning \
+		\
+		build \
+		--quiet \
 		--tag "${1}:${VERSION}" \
 		docker-build
 }
@@ -451,11 +455,21 @@ function query_services {
 				then
 					if [ "${host}" == "localhost" ] || [ "${host}" == "${ORCA_HOST}" ]
 					then
-						item="${service}-${host}:${3}"
+						if [ -n "${3}" ]
+						then
+							item="${service}-${host}:${3}"
+						else
+							item="${service}-${host}"
+						fi
 					else
 						local host_ip=$(query_configuration .hosts.${host}.ip ${host})
 
-						item="${host_ip}:${3}"
+						if [ -n "${3}" ]
+						then
+							item="${host_ip}:${3}"
+						else
+							item="${host_ip}"
+						fi
 					fi
 				elif [ "${2}" == "service_name" ]
 				then
