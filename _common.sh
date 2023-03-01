@@ -92,6 +92,7 @@ function download {
 
 	if [[ "${file_url}" != http://mirrors.*.liferay.com* ]] &&
 	   [[ "${file_url}" != http://release-1* ]] &&
+	   [[ "${file_url}" != http://releases-cdn.liferay.com* ]] &&
 	   [[ "${file_url}" != https://release.liferay.com* ]]
 	then
 		if [ ! -n "${LIFERAY_DOCKER_MIRROR}" ]
@@ -175,6 +176,23 @@ function make_temp_directory {
 	mkdir -p "${TEMP_DIR}"
 
 	cp -r "${1}"/* "${TEMP_DIR}"
+
+	#
+	# templates/_common/resources/etc/created-date
+	#
+
+	local current_date=$(date)
+
+	current_date=$(date "${current_date}" "+%D")
+
+	local file_date=$(cat templates/_common/resources/etc/created-date)
+
+	if [[ "${current_date}" != "${file_date}" ]]
+	then
+		echo "${current_date}" > templates/_common/resources/etc/created-date
+	fi
+
+	cp -r templates/_common/resources/* "${TEMP_DIR}/resources"
 }
 
 function pid_8080 {

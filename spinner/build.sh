@@ -1,15 +1,5 @@
 #!/bin/bash
 
-function build_docker_images {
-	cd ${STACK_DIR}/liferay
-	docker build . -t "liferay:${STACK_NAME}"
-
-	cd ${STACK_DIR}/search
-	docker build . -t "search:${STACK_NAME}"
-
-	rm -fr ${STACK_DIR}/liferay ${STACK_DIR}/search
-}
-
 function check_usage {
 	check_utils docker
 
@@ -80,8 +70,8 @@ function create_liferay_configuration {
 
 	mkdir -p liferay_mount/files
 
-	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/configs/common/* liferay_mount/files
-	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/configs/${ENVIRONMENT}/* liferay_mount/files
+	cp -r ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/configs/common/* liferay_mount/files
+	cp -r ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/configs/${ENVIRONMENT}/* liferay_mount/files
 
 	echo "Deleting the following files from configuration to ensure DXP can run locally:"
 
@@ -106,11 +96,11 @@ function create_liferay_configuration {
 }
 
 function create_liferay_dockerfile {
-	echo "FROM $(grep -e '^liferay.workspace.docker.image.liferay=' ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/gradle.properties | cut -d'=' -f2)" > liferay/Dockerfile
+	echo "FROM $(grep -e '^liferay.workspace.docker.image.liferay=' ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/gradle.properties | cut -d'=' -f2)" > build/liferay/Dockerfile
 
-	echo "COPY resources/usr/local/liferay/scripts /usr/local/liferay/scripts/" >> liferay/Dockerfile
+	echo "COPY resources/usr/local/liferay/scripts /usr/local/liferay/scripts/" >> build/liferay/Dockerfile
 
-	cat ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/Dockerfile.ext >> liferay/Dockerfile
+	cat ${LIFERAY_LXC_REPOSITORY_DIR}/liferay/Dockerfile.ext >> build/liferay/Dockerfile
 }
 
 function generate_configuration {
@@ -120,11 +110,11 @@ function generate_configuration {
 
 	cd ${STACK_DIR}
 
-	mkdir -p liferay/resources/usr/local/liferay/scripts/pre-startup
-	cp ../../orca/templates/liferay/resources/usr/local/liferay/scripts/pre-startup/10_wait_for_dependencies.sh liferay/resources/usr/local/liferay/scripts/pre-startup
+	mkdir -p build/liferay/resources/usr/local/liferay/scripts/pre-startup
+	cp ../../orca/templates/liferay/resources/usr/local/liferay/scripts/pre-startup/10_wait_for_dependencies.sh build/liferay/resources/usr/local/liferay/scripts/pre-startup
 
-	mkdir -p search/
-	cp ../../orca/templates/search/Dockerfile search/
+	mkdir -p build/search/
+	cp ../../orca/templates/search/Dockerfile build/search/
 
 	mkdir -p database_import
 
@@ -133,6 +123,10 @@ function generate_configuration {
 	create_liferay_configuration
 
 	write "services:"
+	write "    antivirus:"
+	write "        image: clamav/clamav:1.0.1-1"
+	write "        ports:"
+	write "            - \"3310:3310\""
 	write "    database:"
 	write "        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --character-set-filesystem=utf8mb4 --max_allowed_packet=256M --tls-version=''"
 	write "        environment:"
@@ -148,6 +142,7 @@ function generate_configuration {
 	write "            - ./database_import:/docker-entrypoint-initdb.d"
 	write "            - mysql-db:/var/lib/mysql"
 	write "    liferay:"
+	write "        build: ./build/liferay"
 	write "        environment:"
 	write "            - LCP_LIFERAY_UPGRADE_ENABLED=\${LCP_LIFERAY_UPGRADE_ENABLED:-}"
 	write "            - LCP_SECRET_DATABASE_HOST=database"
@@ -171,13 +166,13 @@ function generate_configuration {
 	write "            - LIFERAY_WORKSPACE_ENVIRONMENT=${ENVIRONMENT}"
 	write "            - LOCAL_STACK=true"
 	write "            - ORCA_LIFERAY_SEARCH_ADDRESSES=search:9200"
-	write "        image: liferay:${STACK_NAME}"
 	write "        ports:"
 	write "            - 127.0.0.1:18000:8000"
 	write "            - 127.0.0.1:18080:8080"
 	write "        volumes:"
 	write "            - ./liferay_mount:/mnt/liferay"
 	write "    search:"
+	write "        build: ./build/search"
 	write "        environment:"
 	write "            - discovery.type=single-node"
 	write "            - xpack.ml.enabled=false"
@@ -185,7 +180,6 @@ function generate_configuration {
 	write "            - xpack.security.enabled=false"
 	write "            - xpack.sql.enabled=false"
 	write "            - xpack.watcher.enabled=false"
-	write "        image: search:${STACK_NAME}"
 	write "volumes:"
 	write "     mysql-db:"
 }
@@ -194,8 +188,6 @@ function main {
 	check_usage "${@}"
 
 	generate_configuration | tee -a ${STACK_DIR}/build.out
-
-	build_docker_images | tee -a ${STACK_DIR}/build.out
 
 	print_image_usage | tee -a ${STACK_DIR}/build.out
 }
@@ -212,7 +204,7 @@ function print_image_usage {
 	echo "The configuration is ready to use. It's available in the ${STACK_NAME} folder. To start all services up, use the following commands:"
 	echo ""
 	echo "cd ${STACK_NAME}"
-	echo "${docker_compose} up -d database search && ${docker_compose} up liferay"
+	echo "${docker_compose} up -d antivirus database search && ${docker_compose} up liferay"
 	echo ""
 	echo "All ports are only listening on localhost, you can connect to the following services:"
 	echo " - Customer virtual instance: http://spinner-test.com:18080 test@spinner-test.com:test (add spinner-test.com to your hosts file mapped to 127.0.0.1)"

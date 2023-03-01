@@ -21,6 +21,8 @@ ARG LABEL_ZULU_8_VERSION
 ARG TARGETARCH
 ARG TARGETPLATFORM
 
+COPY resources/etc/created-date /etc/created-date
+
 ENV JAVA_VERSION=zulu8
 
 LABEL org.label-schema.build-date="${LABEL_BUILD_DATE}"

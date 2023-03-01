@@ -9,6 +9,7 @@ ARG LABEL_VERSION
 ARG TARGETARCH
 ARG TARGETPLATFORM
 
+COPY resources/etc/created-date /etc/created-date
 COPY resources/usr/src/app/* /usr/src/app
 
 ENV MEMORY_CACHE=0
