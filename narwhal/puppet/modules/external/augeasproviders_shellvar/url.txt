@@ -1,0 +1,2 @@
+# 4753f887f104c81bb14c4b6d07d996e39555afd5
+git clone https://github.com/voxpupuli/puppet-augeasproviders_shellvar.git augeasproviders_shellvar

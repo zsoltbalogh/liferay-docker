@@ -1,0 +1,1 @@
+git clone -b v3.1.0 --depth 1 git@github.com:voxpupuli/puppet-postfix.git

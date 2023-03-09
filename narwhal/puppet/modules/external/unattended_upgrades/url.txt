@@ -1,0 +1,3 @@
+# 29d04e5278fc64805dc4cfd9e397b293ffe5052e
+git clone https://github.com/voxpupuli/puppet-unattended_upgrades.git unattended_upgrades/
+

@@ -1,0 +1,1 @@
+git clone -b v8.5.0 --depth 1 git@github.com:puppetlabs/puppetlabs-stdlib.git

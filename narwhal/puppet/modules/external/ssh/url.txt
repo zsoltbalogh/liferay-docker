@@ -1,0 +1,2 @@
+# 8c871493260ff1a7027684c88b61a8b3e172d334
+https://github.com/saz/puppet-ssh.git

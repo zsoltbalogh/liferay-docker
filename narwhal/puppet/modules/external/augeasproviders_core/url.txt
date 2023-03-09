@@ -1,0 +1,2 @@
+# d3fc5676040291aaa3023e7102af4ca297691621
+https://github.com/voxpupuli/puppet-augeasproviders_core.git

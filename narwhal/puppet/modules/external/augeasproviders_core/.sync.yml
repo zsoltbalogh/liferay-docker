@@ -1,0 +1,10 @@
+---
+.github/workflows/ci.yml:
+  additional_packages: 'libaugeas-dev'
+Gemfile:
+  optional:
+    ':test':
+      - gem: ruby-augeas
+spec/spec_helper.rb:
+  spec_overrides:
+    - "require 'spec_helper_local'"

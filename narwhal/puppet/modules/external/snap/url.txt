@@ -1,0 +1,1 @@
+https://github.com/root-expert/puppet-snap.git

@@ -1,0 +1,2 @@
+# 90a4ffe83e19546a1d0ea33b484380b5f37e4486
+https://github.com/puppetlabs/puppetlabs-apt.git

@@ -1,0 +1,59 @@
+{
+  "name": "puppet-augeasproviders_core",
+  "version": "3.2.1-rc0",
+  "author": "Vox Pupuli",
+  "summary": "Alternative Augeas-based providers for Puppet",
+  "license": "Apache-2.0",
+  "source": "https://github.com/voxpupuli/puppet-augeasproviders_core",
+  "project_page": "https://github.com/voxpupuli/puppet-augeasproviders_core",
+  "issues_url": "https://github.com/voxpupuli/puppet-augeasproviders_core/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 3.2.0 < 9.0.0"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "7",
+        "8",
+        "9",
+        "10"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "18.04",
+        "20.04",
+        "21.04"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 6.1.0 < 8.0.0"
+    }
+  ]
+}

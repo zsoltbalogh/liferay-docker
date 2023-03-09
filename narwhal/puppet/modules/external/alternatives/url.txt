@@ -1,0 +1,2 @@
+# fb6ca13bb343bf47a2ea33d7d034b159123ccaa9
+https://github.com/voxpupuli/puppet-alternatives.git

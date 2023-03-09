@@ -1,0 +1,2 @@
+# a7da9916653f4dae2fda608f072dfc589bc81250
+https://github.com/saz/puppet-timezone.git

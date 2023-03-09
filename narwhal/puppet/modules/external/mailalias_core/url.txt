@@ -1,0 +1,2 @@
+# 3253fe513e46789e5f7405e5eaa2bae654fc9958
+https://github.com/puppetlabs/puppetlabs-mailalias_core.git

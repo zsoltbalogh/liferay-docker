@@ -1,0 +1,2 @@
+# 12e8ac0881c06e1d897a70f1544f89332bce2daa
+https://github.com/puppetlabs/puppetlabs-inifile.git

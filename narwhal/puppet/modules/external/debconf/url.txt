@@ -1,0 +1,2 @@
+# 0a482cea8edff36c1513268fe47678ca3fe96ef8
+https://github.com/smoeding/puppet-debconf.git

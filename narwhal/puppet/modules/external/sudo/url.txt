@@ -1,0 +1,2 @@
+# a3d46ab
+git clone git@github.com:saz/puppet-sudo.git

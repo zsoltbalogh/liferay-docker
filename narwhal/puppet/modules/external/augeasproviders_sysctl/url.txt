@@ -1,0 +1,3 @@
+# d2822732c6cfc07fdf28460390562405110273c
+git clone https://github.com/voxpupuli/puppet-augeasproviders_sysctl.git augeasproviders_sysctl
+

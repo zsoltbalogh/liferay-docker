@@ -1,0 +1,2 @@
+# f42c01496b81aead4be846f33dff747cad86b52e
+https://github.com/puppetlabs/puppetlabs-accounts.git
