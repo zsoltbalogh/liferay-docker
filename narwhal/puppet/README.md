@@ -12,8 +12,8 @@ git clone ssh://github.com/liferay/liferay-docker.git
 git lfs track <relative file path from the git root directory>
 git add . && git commit && git push
 
-# deploy changes with g10k to the puppet server
-/root/g10k-run.sh
+# deploy changes with r10k to the puppet server
+/root/r10k-run.sh
 
 # deploy changes to the node (as root):
 puppet agent -t

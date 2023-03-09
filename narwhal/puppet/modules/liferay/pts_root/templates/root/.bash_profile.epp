@@ -1,0 +1,43 @@
+# MANAGED BY PUPPET, LOCAL CHANGES WILL BE OVERRIDDEN
+# vim: set ft=bash:
+
+# Colors, yo!
+green="\e[1;32m"
+red="\e[1;31m"
+blue="\e[1;34m"
+purple="\e[1;35m"
+cyan="\e[1;36m"
+nocolor="\e[00m"
+
+# export PS1="\[\033[01;31m\]\h\[\033[01;34m\] \w # \[\033[00m\]"
+export PS1="\[${<%= $pts_location::prompt_host_color -%>}\]\h\[${blue}\] \w # \[${nocolor}\]"
+export LC_ALL=en_US.UTF-8
+export PATH=$PATH:/usr/share/bcc/tools
+export HISTSIZE=100000                   # big big history
+export HISTFILESIZE=100000               # big big history
+export HISTTIMEFORMAT="%y-%m-%d %T "
+
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
+alias l='ls --color=auto -F --show-control-chars -h -A'
+alias la='ls -A'
+alias ll='ls -alF'
+alias ls='ls --color=auto'
+alias vl='virsh list --all'
+alias pat='puppet agent -t'
+alias pat='puppet agent -t'
+alias pate='puppet agent -t --environment'
+alias patn='puppet agent -t --noop'
+alias patne='puppet agent -t --noop --noop --environment'
+
+export EDITOR=vim
+export VISUAL=vim
+
+if [ -f ~/.bash_local ];
+then
+  # shellcheck disable=SC1090
+  . ~/.bash_local
+fi
+
+#set vim

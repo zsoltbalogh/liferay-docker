@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# https://github.com/maxtsepkov/bash_colors/blob/master/bash_colors.sh
+uncolorize () { sed -r "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g"; }
+
+green="\e[1;32m"
+red="\e[1;31m"
+nocolor="\e[0m"
+
+sayf() {
+  echo -ne "$1";
+  echo -e "$nocolor";
+}
+
+if [[ $- != *i* ]]
+  then
+    say() { sayf "$*" ;}
+
+  else
+    # do nothing
+    say() { echo "$1"; }
+fi
+
+file_last_run=/var/tmp/puppet_last_run.txt
+
+if ! [ -f "$file_last_run" ];
+  then
+    echo "The file $file_last_run does not exist!"
+    exit 1
+fi
+
+# 4 hours
+time_max_elapsed=$((3600*4))
+
+time_last=$(cat "$file_last_run")
+date_last=$(date -d @"$time_last" +"%Y-%m-%d %H:%M")
+time_current=$(date +%s)
+time_elapsed=$((time_current - time_last))
+if [ "$time_elapsed" -lt "$time_max_elapsed" ];
+  then
+    sayf "Last success puppet run:$green $date_last"
+
+  else
+    sayf "Last success puppet run:$red $date_last"
+fi

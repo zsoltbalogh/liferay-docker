@@ -1,0 +1,44 @@
+#!/bin/sh
+
+ubuntu_codename=$(lsb_release -c -s)
+
+f_bionic() {
+  stamp="/var/lib/update-notifier/updates-available"
+
+  [ ! -r "$stamp" ] || cat "$stamp"
+}
+
+f_focal() {
+  stamp="/var/lib/update-notifier/updates-available"
+
+  [ ! -r "$stamp" ] || cat "$stamp"
+
+  find $stamp -newermt 'now-7 days' 2> /dev/null | grep -q -m 1 '.' || echo -e "The list of available updates is more than a week old, that should not ever happen!"
+}
+
+f_jammy() {
+  stamp="/var/lib/update-notifier/updates-available"
+
+  [ ! -r "$stamp" ] || cat "$stamp"
+
+  find $stamp -newermt 'now-7 days' 2> /dev/null | grep -q -m 1 '.' || echo -e "The list of available updates is more than a week old, that should not ever happen!"
+}
+
+case "$ubuntu_codename" in
+  bionic)
+    f_bionic
+  ;;
+
+  focal)
+    f_focal
+  ;;
+
+  jammy)
+    f_jammy
+  ;;
+
+  *)
+    echo "Script not prepared for this Ubuntu release: ${ubuntu_codename}!"
+    exit 1
+    ;;
+esac
