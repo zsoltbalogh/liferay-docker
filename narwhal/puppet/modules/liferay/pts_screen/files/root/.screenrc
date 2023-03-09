@@ -1,0 +1,6 @@
+altscreen on
+hardstatus alwayslastline
+startup_message off
+termcapinfo xterm ti@:te@
+hardstatus alwayslastline "%{= kC}%-w%{.rW}%n %t%{-}%+w %=%{mk} @ %H %{ck}%Y%{wk}-%{ck}%m%{wk}-%{ck}%d%{yk} %D %{gk}%c "
+defscrollback 100000

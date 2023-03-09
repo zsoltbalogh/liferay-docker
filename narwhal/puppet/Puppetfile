@@ -1,0 +1,76 @@
+moduledir 'narwhal/puppet/modules/r10k'
+
+mod 'accounts',
+	:git => 'https://github.com/puppetlabs/puppetlabs-accounts.git',
+	:ref => 'main'
+	#:commit => '83401079053dca11d61945bd9beef9ecf7576cbf'
+
+mod 'alternatives',
+	:git => 'https://github.com/voxpupuli/puppet-alternatives.git'
+
+mod 'apt',
+	:git => 'https://github.com/puppetlabs/puppetlabs-apt.git',
+	:ref => 'main'
+
+mod 'augeas',
+	:git => 'https://github.com/camptocamp/puppet-augeas.git'
+
+mod 'augeas_core',
+	:git => 'https://github.com/puppetlabs/puppetlabs-augeas_core',
+	:ref => 'main'
+
+mod 'augeasproviders_core',
+	:git => 'https://github.com/voxpupuli/puppet-augeasproviders_core.git'
+
+mod 'augeasproviders_shellvar',
+	:git => 'https://github.com/voxpupuli/puppet-augeasproviders_shellvar.git'
+
+mod 'augeasproviders_sysctl',
+	:git => 'https://github.com/voxpupuli/puppet-augeasproviders_sysctl.git'
+
+mod 'concat',
+	:git => 'https://github.com/puppetlabs/puppetlabs-concat.git',
+	:ref => 'main'
+
+mod 'datacat',
+	:git => 'https://github.com/richardc/puppet-datacat.git'
+
+mod 'debconf',
+	:git => 'https://github.com/smoeding/puppet-debconf.git'
+
+mod 'docker',
+	:git => 'https://github.com/puppetlabs/puppetlabs-docker.git',
+	:ref => 'main'
+
+mod 'inifle',
+	:git => 'https://github.com/puppetlabs/puppetlabs-inifile.git',
+	:ref => 'main'
+
+mod 'mailalias_core',
+	:git => 'https://github.com/puppetlabs/puppetlabs-mailalias_core.git',
+	:ref => 'main'
+
+mod 'postfix',
+	:git => 'https://github.com/voxpupuli/puppet-postfix.git'
+
+mod 'snap',
+	:git => 'https://github.com/root-expert/puppet-snap.git'
+
+mod 'ssh',
+	:git => 'https://github.com/saz/puppet-ssh.git'
+
+mod 'stdlib',
+	:git => 'https://github.com/puppetlabs/puppetlabs-stdlib',
+	:ref => 'main'
+
+mod 'sudo',
+	:git => 'https://github.com/saz/puppet-sudo.git'
+
+mod 'systemd',
+	:git => 'https://github.com/voxpupuli/puppet-systemd.git'
+
+mod 'timezone',
+	:git => 'https://github.com/saz/puppet-timezone.git'
+
+mod 'unattended_upgrades',
+	:git => 'https://github.com/voxpupuli/puppet-unattended_upgrades'

@@ -1,0 +1,19 @@
+---
+postrun:
+	- '/opt/r10k/post-run.sh'
+sources:
+	liferay:
+		remote: 'https://github.com/liferay/liferay-docker.git'
+		basedir: '/opt/r10k/code'
+		invalid_branches: 'correct_and_warn'
+		prefix: true
+	tomposmiko:
+		remote: 'https://github.com/tomposmiko/liferay-docker.git'
+		basedir: '/opt/r10k/code'
+		invalid_branches: 'correct_and_warn'
+		ignore_branch_prefixes:
+			- 'master'
+		prefix: true
+cachedir: /opt/r10k/cache
+git:
+forge:
