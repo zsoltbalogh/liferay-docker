@@ -18,8 +18,8 @@ RUN set -ex; \
 	echo "deb http://repo.percona.com/tools/apt jammy main" > /etc/apt/sources.list.d/percona-tools.list && \
 	apt-get update && \
 	apt-get install --no-install-recommends -y percona-server-server && \
-	rm -rf /var/cache/apt /var/lib/apt && \
-	rm -rf /var/lib/mysql
+	rm -fr /var/cache/apt /var/lib/apt && \
+	rm -fr /var/lib/mysql
 
 RUN install -d /var/lib/mysql /var/run/mysqld -g root -m 0700 -o mysql && \
 	echo "$TZ" > /etc/localtime && dpkg-reconfigure tzdata && \
@@ -33,4 +33,5 @@ COPY resources/usr/local/bin/ /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/liferay_entrypoint.sh"]
 
 USER mysql
+
 CMD ["mysqld"]
