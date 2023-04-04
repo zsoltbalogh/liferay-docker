@@ -19,19 +19,23 @@ function get_token {
 
 	while true
 	do
-		if [ "${round}" -le 120 ]
+		if [ "${round}" -le 40 ]
 		then
 			round=$((round+1))
 		else
-			echo "Fetching token for login ${1} was unsuccessful for 2 mins. Exiting"
+			echo "Fetching token for login ${1} was unsuccessful 40 times. Exiting."
+
 			exit 1
 		fi
 
 		local token=$(curl --fail --request POST --silent "http://${ORCA_VAULT_ADDRESSES}/v1/auth/userpass-${1}/login/${1}" --data "{\"password\": \"${ORCA_VAULT_SERVICE_PASSWORD}\"}")
+
 		if [ -n "${token}" ]
 		then
 			break
 		fi
+
+		sleep 3
 	done
 
 	token=${token##*client_token\":\"}
@@ -52,28 +56,29 @@ function load_secrets {
 
 		while true;
 		do
-			if [ "${round}" -le 120 ]
-				then
-					echo "Fetching secret '${secret}'...round #$((round=round+1))."
-				else
-					echo "Fetching secret '${secret}' was unsuccessful for 2 mins. Exiting"
-					exit 1
+			if [ "${round}" -le 40 ]
+				echo "Fetching secret '${secret}' was unsuccessful 40 times. Exiting."
+
+				exit 1
 			fi
 
 			local password=$(curl --fail --header "X-Vault-Token: ${token}" --request GET --silent "http://${ORCA_VAULT_ADDRESSES}/v1/secret/data/${secret}")
 
-			ret="${?}"
+			exit_code="${?}"
 
-			if [ "${ret}" -gt 0 ]
+			if [ "${exit_code}" -gt 0 ]
 			then
-				echo "Fetching secret '${secret}' failed with error ${ret}."
+				echo "Fetching secret '${secret}' failed with error ${exit_code}."
 			fi
 
 			if [ -n "${password}" ]
 			then
 				echo "Fetching secret '${secret}' succeeded."
+
 				break
 			fi
+
+			sleep 3
 		done
 
 		password=${password##*password\":\"}
