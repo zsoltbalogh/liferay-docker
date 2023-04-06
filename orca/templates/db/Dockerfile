@@ -7,8 +7,8 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV PS_VERSION 8.0.32-24
 ENV TZ Etc/UTC
 
-RUN groupadd -g 1001 mysql && \
-	useradd -d /var/lib/mysql -g 1001 -s /bin/false -u 1001 mysql
+RUN groupadd -g 1000 mysql && \
+	useradd -d /var/lib/mysql -g 1000 -s /bin/false -u 1000 mysql
 
 RUN set -ex; \
 	apt-get update && \
