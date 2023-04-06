@@ -20,29 +20,6 @@ function check_setup {
 	fi
 }
 
-function init_datadir {
-	block_begin "Datadir initialization."
-
-	install -v -o mysql -g mysql -m 0700 -d "${HOME}/data" "${HOME}/log"
-
-	mysqld --initialize-insecure
-
-	block_finish "Datadir initialization."
-}
-
-function init_liferay_db {
-	block_begin "Initialize 'lportal' database."
-
-	mysql <<-EOSQL
-		CREATE DATABASE lportal;
-		CREATE USER 'lportal'@'%' IDENTIFIED BY '${MYSQL_LIFERAY_PASSWORD}';
-		GRANT ALL ON lportal.* TO 'lportal'@'%';
-		FLUSH PRIVILEGES ;
-	EOSQL
-
-	block_finish "Initialize 'lportal' database."
-}
-
 function get_vault_mysql_liferay_password {
 	MYSQL_LIFERAY_PASSWORD=$(cat /tmp/orca-secrets/mysql_liferay_password)
 
@@ -65,6 +42,29 @@ function get_vault_mysql_root_password {
 	fi
 
 	echo -e "[client]\nuser = root" > "${HOME}/.my.cnf"
+}
+
+function init_datadir {
+	block_begin "Datadir initialization."
+
+	install -v -o mysql -g mysql -m 0700 -d "${HOME}/data" "${HOME}/log"
+
+	mysqld --initialize-insecure
+
+	block_finish "Datadir initialization."
+}
+
+function init_liferay_db {
+	block_begin "Initialize 'lportal' database."
+
+	mysql <<-EOSQL
+		CREATE DATABASE lportal;
+		CREATE USER 'lportal'@'%' IDENTIFIED BY '${MYSQL_LIFERAY_PASSWORD}';
+		GRANT ALL ON lportal.* TO 'lportal'@'%';
+		FLUSH PRIVILEGES ;
+	EOSQL
+
+	block_finish "Initialize 'lportal' database."
 }
 
 function load_timezones {
