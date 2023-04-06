@@ -10,7 +10,7 @@ set -e
 function check_setup {
 	block_begin "Check if MySQL set up."
 
-	if [ -d /var/lib/mysql/data/mysql ];
+	if [ -d /var/lib/mysql/data/mysql ]
 	then
 		block_finish "Check if MySQL is set up: DONE."
 
@@ -99,21 +99,24 @@ function set_basics {
 	block_begin "Set the basics of the 'mysql' database."
 
 	mysql <<-EOSQL
-		-- What's done in this file shouldn't be replicated or products like mysql-fabric won't work
 		SET @@SESSION.SQL_LOG_BIN=0 ;
 
-		CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so' ;
-		CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so' ;
-		CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so' ;
+		CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so';
+		CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so';
+		CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so';
 
-		DELETE FROM mysql.user WHERE user NOT IN ('mysql.sys', 'mysqlxsys', 'mysql.infoschema', 'mysql.session', 'root') OR host NOT IN ('localhost') ;
-		ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
-		GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;
-		DROP DATABASE IF EXISTS test ;
-		FLUSH PRIVILEGES ;
+		DELETE FROM mysql.user WHERE user NOT IN ('mysql.sys', 'mysqlxsys', 'mysql.infoschema', 'mysql.session', 'root') OR host NOT IN ('localhost');
+		ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+		GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+		DROP DATABASE IF EXISTS test;
+		FLUSH PRIVILEGES;
 	EOSQL
 
-	echo -e "[client]\nuser = root\npassword = ${MYSQL_ROOT_PASSWORD}" > "${HOME}/.my.cnf"
+	(
+		echo "[client]"
+		echo "user=root"
+		echo "password=${MYSQL_ROOT_PASSWORD}"
+	) > "${HOME}/.my.cnf"
 
 	block_finish "Set the basics of the 'mysql' database."
 }
@@ -127,7 +130,7 @@ function start_first_run {
 	for second in {120..0}; do
 		msg "MySQL init process in progress... ${second} seconds left."
 
-		if echo 'SELECT 1' | mysql &> /dev/null;
+		if echo 'SELECT 1' | mysql &>/dev/null;
 		then
 			break
 		fi
@@ -138,8 +141,10 @@ function start_first_run {
 	if [ "${second}" = 0 ];
 	then
 		fail "MySQL init process failed."
+
 		exit 1
 	fi
+
 	block_finish "Initialize the 'mysql' database, temporary first run."
 }
 
@@ -151,6 +156,7 @@ function stop_first_run {
 	if ! (kill -s TERM "${pid}" || wait "${pid}")
 	then
 		fail "Temporary mysql instance cannot be shut down."
+
 		exit 1
 	fi
 
