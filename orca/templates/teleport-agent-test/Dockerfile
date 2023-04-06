@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM liferay/base:latest
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Etc/UTC
@@ -14,12 +14,10 @@ RUN curl https://apt.releases.teleport.dev/gpg -o /usr/share/keyrings/teleport-a
 	apt clean && \
 	rm -fr /var/lib/apt/lists/*
 
-RUN user=lradmin && \
-	adduser $user --gecos "Liferay common user" --disabled-password && \
-	install -d /home/$user/.ssh/ -o $user -g $user -m 0700 && \
+RUN install -d /home/liferay/.ssh -o liferay -g liferay -m 0700 && \
 	echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK9cRilRehhA3bBKZfd8OITMFVyzQBUvCjvbejLsJavD tamas.papp@liferay' > /home/$user/.ssh/authorized_keys && \
 	echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILOu945eSM8vlNkxMmnYrIYkoFaPO0L7+M0cWnV8/tH2 zsolt.balogh@liferay' >> /home/$user/.ssh/authorized_keys && \
-	chown -R $user:$user /home/$user/ && \
-	chmod 600 /home/$user/.ssh/authorized_keys
+	chown liferay:liferay /home/liferay/.ssh/authorized_keys && \
+	chmod 600 /home/liferay/.ssh/authorized_keys
 
 CMD ["teleport","start","--roles=node","--token=/agent-test/token.txt","--auth-server=teleport-proxy"]
