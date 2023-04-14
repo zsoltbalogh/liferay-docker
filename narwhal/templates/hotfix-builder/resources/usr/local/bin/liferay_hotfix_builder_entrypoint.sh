@@ -237,10 +237,46 @@ function create_hotfix {
 	done
 }
 
+function detect_osgi_changes {
+	for changed_file in $(git diff --name-only "${DXP_VERSION}")
+	do
+		if ( ! echo "${changed_file}" | grep -q "modules" )
+		then
+			echo "${changed_file} is not in an OSGi module."
+
+			continue
+		fi
+
+		local bnd_dir=$(get_bnd_dir "${changed_file}")
+
+		update_bnd "${bnd_dir}"/bnd.bnd
+	done
+}
+
 function echo_time {
 	local seconds=${1}
 
 	printf '%02dh:%02dm:%02ds' $((seconds/3600)) $((seconds%3600/60)) $((seconds%60))
+}
+
+function get_bnd_dir {
+	if [ -e "${1}"/bnd.bnd ]
+	then
+		echo "${1}"
+
+		return
+	fi
+
+	parent=$(dirname "${1}")
+
+	if [ "${parent}" == "." ] || [ "${parent}" == "/" ]
+	then
+		echo ""
+
+		return 1
+	fi
+
+	get_bnd_dir "${parent}"
 }
 
 function get_dxp_version {
@@ -311,6 +347,8 @@ function main {
 	UPDATE_DIR=/opt/liferay/bundles/"${DXP_VERSION}"
 
 	time_run prepare_update &
+
+	time_run detect_osgi_changes
 
 	time_run compile_dxp
 
@@ -435,6 +473,18 @@ function transform_file_name {
 	file_name=$(echo "${file_name}" | sed -e s#tomcat.*/webapps/ROOT#WAR_PATH#)
 
 	echo "${file_name}"
+}
+
+function update_bnd {
+	bnd=${1}
+
+	local old_version_line=$(grep "Bundle-Version: " < "${bnd}")
+
+	local micro_version=$(echo "${old_version_line}" | sed -e s/.*[.]//)
+
+	local new_version_line=$(echo "${old_version_line}" | sed -e s/[.][0-9]*//)"."$((micro_version - 1))-hotfix-${NARWHAL_BUILD_ID}
+
+	sed -i "s/${old_version_line}/${new_version_line}/" "${bnd}"
 }
 
 main
