@@ -11,6 +11,11 @@ function add_file {
 }
 
 function calculate_checksums {
+	if [ ! -e "${BUILD_DIR}/hotfix/binaries/" ]
+	then
+		return "${SKIPPED}"
+	fi
+
 	lcd "${BUILD_DIR}/hotfix/binaries/"
 
 	find . -print0 | while IFS= read -r -d '' file
@@ -192,7 +197,7 @@ function create_hotfix {
 	rm -fr "${BUILD_DIR}"/hotfix
 	mkdir -p "${BUILD_DIR}"/hotfix
 
-	diff -rq "${PATCHED_DIR}" "${UPDATE_DIR}" | grep -v /work/Catalina | while read -r change
+	diff -rq $(get_tomcat_dir "${PATCHED_DIR}")/webapps/ROOT $(get_tomcat_dir "${UPDATE_DIR}")/webapps/ROOT | grep -v /work/Catalina | while read -r change
 	do
 		if (echo "${change}" | grep "^Only in ${UPDATE_DIR}" &>/dev/null)
 		then
@@ -250,6 +255,8 @@ function detect_osgi_changes {
 		local bnd_dir=$(get_bnd_dir "${changed_file}")
 
 		update_bnd "${bnd_dir}"/bnd.bnd
+
+		grep "Bundle-SymbolicName: " < "${bnd_dir}"/bnd.bnd | sed -e "s/Bundle-SymbolicName: //" > ${BUILD_DIR}/osgi-changes
 	done
 }
 
@@ -288,6 +295,10 @@ function get_dxp_version {
 	local trivial=$(grep -F "release.info.version.trivial=" release.properties)
 
 	echo "${major##*=}.${minor##*=}.${bug_fix##*=}-u${trivial##*=}"
+}
+
+function get_tomcat_dir {
+	find "${1}" -maxdepth 1 -name "tomcat-*" -type d
 }
 
 function git_update {
