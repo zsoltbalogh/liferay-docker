@@ -146,6 +146,66 @@ function build_service_search {
 
 	grep -v "^FROM" ../../orca/templates/search/Dockerfile | sed -e "s/#FROM/FROM/" > build/search/Dockerfile
 
+	mkdir -p database_import
+
+	mkdir -p build/webserver/resources/etc/nginx
+	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/blocks.d/ build/webserver/resources/etc/nginx
+	rm -f build/webserver/resources/etc/nginx/blocks.d/oauth2_proxy_pass.conf
+	rm -f build/webserver/resources/etc/nginx/blocks.d/oauth2_proxy_protection.conf
+
+	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/conf.d/ build/webserver/resources/etc/nginx
+	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/public/ build/webserver/resources/etc/nginx
+	cp ../resources/webserver/etc/nginx/nginx.conf build/webserver/resources/etc/nginx
+	export DOLLAR="$"
+	envsubst < ../resources/webserver/etc/nginx/nginx.conf > build/webserver/resources/etc/nginx/nginx.conf
+	cp -r ../resources/webserver/modsec build/webserver/resources/etc/nginx/
+
+	mkdir -p build/webserver/resources/usr/local/bin/
+
+	if [ -e "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/scripts/10-replace-environment-variables.sh ]
+	then
+		cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/scripts/10-replace-environment-variables.sh build/webserver/resources/usr/local/bin/
+		chmod +x build/webserver/resources/usr/local/bin/10-replace-environment-variables.sh
+	fi
+
+	mkdir -p build/webserver/resources/etc/usr
+	cp -a ../resources/webserver/usr/ build/webserver/resources/
+
+	create_liferay_dockerfile
+
+	create_liferay_configuration
+
+	create_webserver_dockerfile
+
+	write "services:"
+	write "    antivirus:"
+
+	write_deploy 1G
+
+	write "        image: clamav/clamav:1.0.1-1"
+	write "        ports:"
+	write "            - \"3310:3310\""
+	write "    database:"
+	write "        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --character-set-filesystem=utf8mb4 --default-authentication-plugin=mysql_native_password --max_allowed_packet=256M --tls-version=''"
+
+	write_deploy 1G
+
+	write "        environment:"
+	write "            - MYSQL_DATABASE=lportal"
+	write "            - MYSQL_PASSWORD=password"
+	write "            - MYSQL_ROOT_HOST=%"
+	write "            - MYSQL_ROOT_PASSWORD=password"
+	write "            - MYSQL_USER=dxpcloud"
+	write "        image: mysql:8.0.32"
+	write "        ports:"
+	write "            - 127.0.0.1:${DATABASE_PORT}:3306"
+	write "        volumes:"
+	write "            - ./database_import:/docker-entrypoint-initdb.d"
+	write "            - mysql-db:/var/lib/mysql"
+
+	write_liferay liferay-1 0
+	write_liferay liferay-2 1
+
 	write "    search:"
 	write "        build: ./build/search"
 
@@ -241,6 +301,12 @@ function check_usage {
 				print_help
 
 				;;
+			-m)
+				shift
+
+				export MODSEC=on
+
+				;;
 			-o)
 				shift
 
@@ -321,6 +387,13 @@ function check_usage {
 	fi
 
 	mkdir -p "${STACK_DIR}"
+
+	if [ ! -n "${MODSEC}" ]
+	then
+		export MODSEC=off
+
+		echo "Modsecurity was not enabled, building without modsec module. Use -m to enable it."
+	fi
 }
 
 function main {
@@ -400,6 +473,7 @@ function print_help {
 	echo "The script can be configured with the following arguments:"
 	echo ""
 	echo "    -d (optional): Set the database import file (raw or with a .gz suffix). Virtual hosts will be suffixed with .local (e.g. abc.liferay.com becomes abc.liferay.com.local)."
+	echo "    -m (optional): Enable Modsecurity"
 	echo "    -o (optional): Set directory name where the stack configuration will be created. It will be prefixed with \"env-\"."
 	echo "    -r (optional): Randomize the MySQL port opened on localhost to enable multiple database servers at the same time"
 	echo "    -s (optional): Skip the specified table name in the database import"
