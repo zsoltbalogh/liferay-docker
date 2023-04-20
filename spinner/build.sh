@@ -38,6 +38,12 @@ function check_usage {
 				DATABASE_SKIP_TABLE=${1}
 
 				;;
+			-m)
+				shift
+
+				export MODSEC=on
+
+				;;
 			*)
 				ENVIRONMENT=${1}
 
@@ -95,6 +101,14 @@ function check_usage {
 	fi
 
 	mkdir -p "${STACK_DIR}"
+
+	if [ ! -n "${MODSEC}" ]
+	then
+		export MODSEC=off
+
+		echo "Modsecurity was not enabled, building without modsec module. Use -m to enable it."
+	fi
+
 }
 
 function check_utils {
@@ -253,7 +267,9 @@ function generate_configuration {
 
 	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/conf.d/ build/webserver/resources/etc/nginx
 	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/public/ build/webserver/resources/etc/nginx
-	cp ../resources/webserver/etc/nginx/nginx.conf build/webserver/resources/etc/nginx
+	export DOLLAR="$"
+	envsubst < ../resources/webserver/etc/nginx/nginx.conf > build/webserver/resources/etc/nginx/nginx.conf
+	cp -r ../resources/webserver/modsec build/webserver/resources/etc/nginx/
 
 	mkdir -p build/webserver/resources/usr/local/bin/
 
@@ -385,6 +401,7 @@ function print_help {
 	echo "The script can be configured with the following arguments:"
 	echo ""
 	echo "    -d (optional): Database dump file, .gz is supported. After importing the virtual hosts will be renamed *.local."
+	echo "    -m (optional): Enabling Modsecurity"
 	echo "    -o (optional): The name of the directory where the configuration will be created. It will be prefixed with 'env-'."
 	echo "    -r (optional): Randomize the mysql port opened on localhost to enable multiple database servers run at the same time"
 	echo "    -s (optional): Skipping importing the specified table name"
@@ -408,9 +425,10 @@ function print_image_usage {
 	echo "The configuration is ready to use. It's available in the ${STACK_NAME} folder. To start all services up, use the following commands:"
 	echo ""
 	echo "cd ${STACK_NAME}"
-	echo "${docker_compose} up -d antivirus database search webserver && ${docker_compose} up liferay-1"
+	echo "${docker_compose} up -d antivirus database search && ${docker_compose} up liferay-1 webserver"
 	echo ""
 	echo "If you would like to test with clustering, start the second liferay node too: ${docker_compose} up liferay-2"
+	echo "To enable Modsecurity, use the -m argument when running build.sh"
 	echo ""
 	echo "For more information visit https://liferay.atlassian.net/l/cp/eUNW1Dsx"
 }
