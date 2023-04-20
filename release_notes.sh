@@ -7,7 +7,9 @@ function check_usage {
 	   [[ ("${1}" != "commit") &&
 	   ("${1}" != "display") &&
 	   ("${1}" != "fail-on-change") &&
-	   ("${1}" != "get-version") ]]
+	   ("${1}" != "get-version") &&
+		 ("${1}" != "get-new-version") &&
+		 ("${1}" != "get-latest-version") ]]
 	then
 		echo "Usage: ${0} <command>"
 		echo ""
@@ -126,9 +128,15 @@ function print_version {
 		else
 			echo "${RELEASE_NOTES_LATEST_VERSION}"
 		fi
-
-		exit
+	elif [ "${1}" == "get-latest-version" ]
+	then
+		echo "${RELEASE_NOTES_NEW_VERSION}"
+	elif [ "${1}" == "get-new-version" ]
+	then
+		echo "${RELEASE_NOTES_LATEST_VERSION}"
 	fi
+
+	exit
 }
 
 main "${@}"

@@ -477,6 +477,35 @@ function main {
 	if [[ " ${@} " =~ " --push " ]]
 	then
 		BUILD_ALL_IMAGES_PUSH="push"
+
+		local git_line=$(grep 'docker.image.git.id' .releng/docker-image.changelog | tail -n1)
+
+		local release_notes_current_sha=$(git log -1 --pretty=%H)
+
+		local release_notes_latest_sha=${git_line#*=}
+
+		local release_notes_new_version=$(./release_notes.sh get-latest-version)
+
+		local release_notes_change_log=$(git log --grep "^DOCKER-" --pretty=%s "${release_notes_latest_sha}..${release_notes_current_sha}" | sed -e "s/\ .*/ /" | uniq | tr -d "\n" | tr -d "\r" | sed -e "s/ $//")
+
+		if [ -n "${release_notes_change_log}" ]
+		then
+			(
+				echo ""
+				echo "#"
+				echo "# Liferay Docker Image Version ${release_notes_new_version}"
+				echo "#"
+				echo ""
+				echo "docker.image.change.log-${release_notes_new_version}=${release_notes_change_log}"
+				echo "docker.image.git.id-${release_notes_new_version}=${release_notes_current_sha}"
+			) >> .releng/docker-image.changelog
+
+			git add .releng/docker-image.changelog
+
+			git commit -m "${release_notes_new_version} change log"
+
+			git push
+		fi
 	fi
 
 	if [ "${BUILD_ALL_IMAGES_PUSH}" == "push" ] && ! ./release_notes.sh fail-on-change
