@@ -1,22 +1,18 @@
-################################################################################
-#
-# Class: hosts::file
-#
-# This class declares the file and empties its content if $purge is set.
-#
-################################################################################
 class pts_hosts::file {
-
-		file { $pts_hosts::hostsfile:
-			owner => $pts_hosts::owner,
+	file {
+		$pts_hosts::hostsfile:
 			group => $pts_hosts::group,
-			mode	=> $pts_hosts::mode,
+			mode => $pts_hosts::mode,
+			owner => $pts_hosts::owner,
+	}
+
+	if ($pts_hosts::purge == true) {
+
+		resources {
+				'host':
+					purge => true
 		}
 
-		if ( $pts_hosts::purge == true ) {
-			resources { 'host' :
-				purge	 => true
-			}
-		}
+	}
 
 }

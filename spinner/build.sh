@@ -208,6 +208,9 @@ function generate_configuration {
 	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/public/ build/webserver/resources/etc/nginx
 	cp ../resources/webserver/etc/nginx/nginx.conf build/webserver/resources/etc/nginx
 
+	mkdir -p build/webserver/resources/etc/nginx/scripts
+	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/scripts/10-replace-environment-variables.sh build/webserver/resources/etc/nginx/scripts
+
 	cp -r ../resources/webserver/modsec build/webserver/resources/etc/nginx/
 
 	mkdir -p build/webserver/resources/etc/usr
