@@ -1,4 +1,5 @@
 node /^gw1.orca.lfr$/ {
+	include pts_docker
 	include pts_system
 
 	pts_hosts::add {
