@@ -375,7 +375,7 @@ function build_services {
 		fi
 	fi
 
-	for SERVICE_NAME in $(yq ".hosts.${ORCA_HOST}.services" < "${CONFIG_FILE}" | grep -v "  .*" | sed "s/-[ ]//" | sed "s/:.*//")
+	for SERVICE_NAME in $(yq ".hosts.${ORCA_HOST}.services" "${CONFIG_FILE}" | grep -v "  .*" | sed "s/-[ ]//" | sed "s/:.*//")
 	do
 		SERVICE_HOST="${SERVICE_NAME}-${ORCA_HOST}"
 
@@ -454,7 +454,7 @@ function main {
 }
 
 function query_configuration {
-	local yq_output=$(yq "${1}" < "${CONFIG_FILE}")
+	local yq_output=$(yq "${1}" "${CONFIG_FILE}")
 
 	if [ "${yq_output}" == "null" ]
 	then
@@ -472,7 +472,7 @@ function query_github_configuration {
 		exit 1
 	fi
 
-	local yq_output=$(yq "${1}" < "${GITHUB_CONFIG_FILE}")
+	local yq_output=$(yq "${1}" "${GITHUB_CONFIG_FILE}")
 
 	if [ "${yq_output}" == "null" ]
 	then
@@ -485,14 +485,14 @@ function query_github_configuration {
 function query_services {
 	local list
 
-	for host in $(yq ".hosts" < "${CONFIG_FILE}" | grep -v "  .*" | sed "s/-[ ]//" | sed "s/:.*//")
+	for host in $(yq ".hosts" "${CONFIG_FILE}" | grep -v "  .*" | sed "s/-[ ]//" | sed "s/:.*//")
 	do
 		if [ "${4}" == "true" ] && [ "${host}" == "${ORCA_HOST}" ]
 		then
 			continue
 		fi
 
-		for service in $(yq ".hosts.${host}.services" < "${CONFIG_FILE}" | grep -v "  .*" | sed "s/-[ ]//" | sed "s/:.*//")
+		for service in $(yq ".hosts.${host}.services" "${CONFIG_FILE}" | grep -v "  .*" | sed "s/-[ ]//" | sed "s/:.*//")
 		do
 			if [ "${service}" == "${1}" ]
 			then
