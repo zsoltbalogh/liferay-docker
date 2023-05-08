@@ -313,6 +313,7 @@ function build_service_teleport_proxy {
 	write 1 "        - \"3025:3025\""
 	write 1 "        - \"3080:3080\""
 	write 1 "    volumes:"
+	write 1 "        - /etc/letsencrypt:/etc/letsencrypt:ro"
 	write 1 "        - /opt/liferay/teleport/agent-test:/agent-test"
 	write 1 "        - /opt/liferay/teleport/data:/var/lib/teleport"
 }
