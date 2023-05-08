@@ -9,8 +9,8 @@ proxy_service:
     acme: {}
     enabled: "yes"
     https_keypairs:
-        - cert_file: /etc/letsencrypt/live/demo.orca.liferay.com/fullchain.pem
-          key_file: /etc/letsencrypt/live/demo.orca.liferay.com/privkey.pem
+    - cert_file: /etc/letsencrypt/live/jumper.demo.orca.liferay.com/fullchain.pem
+      key_file: /etc/letsencrypt/live/jumper.demo.orca.liferay.com/privkey.pem
     https_keypairs_reload_interval: 0s
 ssh_service:
     commands:
@@ -27,5 +27,5 @@ teleport:
             output: text
         output: stderr
         severity: INFO
-    nodename: localhost
+    nodename: jumper.demo.orca.liferay.com
 version: v3
