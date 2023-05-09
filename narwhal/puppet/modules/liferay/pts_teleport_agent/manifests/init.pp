@@ -36,6 +36,15 @@ class pts_teleport_agent {
 			require => Package['teleport'],
 	}
 
+	file {
+		'/usr/local/sbin/join-teleport.sh':
+			group => root,
+			mode => '0775',
+			owner => root,
+			require => Package['teleport'],
+			source => "puppet:///modules/${module_name}/usr/local/sbin/join-teleport.sh",
+	}
+
 	package {
 		'teleport':
 			ensure => latest,
