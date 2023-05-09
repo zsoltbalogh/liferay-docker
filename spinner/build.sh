@@ -208,13 +208,14 @@ function generate_configuration {
 	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/public/ build/webserver/resources/etc/nginx
 	cp ../resources/webserver/etc/nginx/nginx.conf build/webserver/resources/etc/nginx
 
-	mkdir -p build/webserver/resources/etc/nginx/scripts
-	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/scripts/10-replace-environment-variables.sh build/webserver/resources/etc/nginx/scripts
+	mkdir -p build/webserver/resources/usr/local/bin/
+	cp -a  ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/scripts/10-replace-environment-variables.sh build/webserver/resources/usr/local/bin/ && \
+	chmod +x build/webserver/resources/usr/local/bin/10-replace-environment-variables.sh
 
 	cp -r ../resources/webserver/modsec build/webserver/resources/etc/nginx/
 
 	mkdir -p build/webserver/resources/etc/usr
-	cp -a ../resources/webserver/usr/ build/webserver/resources/usr
+	cp -a ../resources/webserver/usr/ build/webserver/resources/
 
 	create_liferay_dockerfile
 
@@ -301,7 +302,7 @@ function print_image_usage {
 	echo "The configuration is ready to use. It's available in the ${STACK_NAME} folder. To start all services up, use the following commands:"
 	echo ""
 	echo "cd ${STACK_NAME}"
-	echo "${docker_compose} up -d antivirus database search webserver && ${docker_compose} up liferay-1"
+	echo "${docker_compose} up -d antivirus database search && ${docker_compose} up liferay-1 webserver"
 	echo ""
 	echo "If you would like to test with clustering, start the second liferay node too: ${docker_compose} up liferay-2"
 	echo ""
