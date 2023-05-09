@@ -19,6 +19,14 @@ class pts_teleport_agent {
 	}
 
 	file {
+		'/etc/default/teleport':
+			content => "AUTH_SERVER=${pts_location::teleport_auth_server}\n"
+			group => root,
+			mode => '0664',
+			owner => root,
+	}
+
+	file {
 		'/etc/systemd/system/teleport.service':
 			content => epp("${module_name}/etc/systemd/system/teleport.service.epp"),
 			group => root,

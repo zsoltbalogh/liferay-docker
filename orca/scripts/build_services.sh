@@ -307,7 +307,6 @@ function build_service_teleport_proxy {
 	write 1 "        - ORCA_DEVELOPMENT_MODE=$(query_configuration .development)"
 	write 1 "        - ORCA_VAULT_ADDRESSES=$(query_services vault host_port 8200)"
 	write 1 "        - ORCA_VAULT_SERVICE_PASSWORD=\${ORCA_VAULT_TELEPORT_PROXY_PASSWORD:-}"
-	write 1 "        - TELEPORT_AUTH_SERVER=$(query_services jumper)"
 	write 1 "    hostname: ${SERVICE_HOST}"
 	write 1 "    image: teleport-proxy:${VERSION}"
 	write 1 "    ports:"
