@@ -1,7 +1,11 @@
 class pts_packages {
 
-	include pts_packages::absent
-	include pts_packages::latest
+	class {
+		'apt':
+			update => {
+				frequency => 'daily',
+			},
+	}
 
 	$minute = fqdn_rand(59)
 
@@ -12,5 +16,8 @@ class pts_packages {
 			mode => '0644',
 			owner => 'root',
 	}
+
+	include pts_packages::absent
+	include pts_packages::latest
 
 }
