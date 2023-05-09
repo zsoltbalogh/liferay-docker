@@ -15,6 +15,7 @@ class pts_location {
 			$puppet_server_alias = 'pts-bpo.bud.liferay.com'
 			$puppet_server_hostname = 'bob1.bud.liferay.com'
 			$puppet_server_ip = '192.168.238.11'
+			$teleport_auth_server = '10.111.111.10'
 			$timezone = 'Europe/Budapest'
 		}
 
@@ -24,6 +25,7 @@ class pts_location {
 			$puppet_server_alias = 'pts-bpo.bud.liferay.com'
 			$puppet_server_hostname = 'bob1.bud.liferay.com'
 			$puppet_server_ip = '192.168.238.11'
+			$teleport_auth_server = '10.111.111.10'
 			$timezone = 'Europe/Budapest'
 		}
 
