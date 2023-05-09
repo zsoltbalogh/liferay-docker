@@ -1,12 +1,5 @@
 class pts_packages {
 
-	class {
-		'apt':
-			update => {
-				frequency => 'daily',
-			},
-	}
-
 	$minute = fqdn_rand(59)
 
 	file {
