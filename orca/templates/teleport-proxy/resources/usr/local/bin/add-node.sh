@@ -44,7 +44,7 @@ function main {
 
 function print_join_command {
 	echo "Run the following command on the node to join:"
-	echo "$ teleport start --roles=node --token=${INVITE_TOKEN} --ca-pin=${CA_PIN} --auth-server=${TELEPORT_AUTH_SERVER}"
+	echo "$ teleport start --roles=node --token=${INVITE_TOKEN} --ca-pin=${CA_PIN} --auth-server=$(egrep -o auth-server=[0-9\.]+ /etc/systemd/system/teleport.service | cut -f2 -d=)"
 }
 
 main
