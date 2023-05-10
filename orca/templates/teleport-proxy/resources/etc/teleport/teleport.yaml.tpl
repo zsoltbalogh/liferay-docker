@@ -1,7 +1,7 @@
 auth_service:
     authentication:
         type: github
-    cluster_name: demo
+    cluster_name: __CLUSTER_NAME__
     enabled: "yes"
     listen_addr: 0.0.0.0:3025
     proxy_listener_mode: multiplex
@@ -9,8 +9,8 @@ proxy_service:
     acme: {}
     enabled: "yes"
     https_keypairs:
-    - cert_file: /etc/letsencrypt/live/jumper.demo.orca.liferay.com/fullchain.pem
-      key_file: /etc/letsencrypt/live/jumper.demo.orca.liferay.com/privkey.pem
+    - cert_file: /etc/letsencrypt/live/__GITHUB_REDIRECT_HOST__/fullchain.pem
+      key_file: /etc/letsencrypt/live/__GITHUB_REDIRECT_HOST__/privkey.pem
     https_keypairs_reload_interval: 0s
 ssh_service:
     commands:
@@ -27,5 +27,5 @@ teleport:
             output: text
         output: stderr
         severity: INFO
-    nodename: jumper.demo.orca.liferay.com
+    nodename: __GITHUB_REDIRECT_HOST__
 version: v3

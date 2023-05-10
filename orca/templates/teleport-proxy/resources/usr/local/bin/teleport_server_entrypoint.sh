@@ -1,8 +1,34 @@
 #!/bin/bash
 
-if [ ! -f /etc/teleport/server.crt ]
-then
-	openssl req -days 3650 -keyout /etc/teleport/server.key -new -newkey rsa:2048 -nodes -out /etc/teleport/server.crt -sha256 -subj "/CN=192.168.233.141/O=Liferay/C=HU" -x509
-fi
+function gen_github {
+	sed \
+		-e "s@__GITHUB_ID__@$GITHUB_ID@g" \
+		-e "s@__GITHUB_REDIRECT_HOST__@$GITHUB_REDIRECT_HOST@g" \
+		-e "s@__GITHUB_SECRET__@$GITHUB_SECRET@g" \
+		/root/github.yaml.tpl > /root/github.yaml
+	tctl create -f /root/github.yaml
+}
 
-teleport start -c /etc/teleport/teleport.yaml
+function gen_teleport_config {
+	CLUSTER_NAME=${CLUSTER_NAME/.*/}
+	CLUSTER_NAME=${GITHUB_REDIRECT_HOST#*.}
+
+	sed \
+		-e "s@__CLUSTER_NAME__@$CLUSTER_NAME@g" \
+		-e "s@__GITHUB_REDIRECT_HOST__@$GITHUB_REDIRECT_HOST@g" \
+		/etc/teleport/teleport.yaml.tpl > /etc/teleport/teleport.yaml
+}
+
+function main {
+	gen_github
+
+	gen_teleport_config
+
+	start_teleport
+}
+
+function start_teleport {
+	teleport start -c /etc/teleport/teleport.yaml
+}
+
+main
