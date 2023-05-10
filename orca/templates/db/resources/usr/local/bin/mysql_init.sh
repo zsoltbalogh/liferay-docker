@@ -6,26 +6,26 @@ set -e
 . _liferay_common.sh
 
 function check_setup {
-	block_begin "Check if MySQL set up."
+	block_begin "Check if MySQL is set up"
 
 	if [ -d /var/lib/mysql/data/mysql ]
 	then
-		block_finish "Check if MySQL is set up: DONE."
+		block_finish "Check if MySQL is set up: DONE"
 
 		exit 0
 	else
-		block_finish "Check if MySQL is set up: NOT DONE."
+		block_finish "Check if MySQL is set up: NOT DONE"
 	fi
 }
 
 function init_data {
-	block_begin "Initialize data."
+	block_begin "Initialize data"
 
-	install -v -o mysql -g mysql -m 0700 -d "${HOME}/data" "${HOME}/log"
+	install -d "${HOME}/data" "${HOME}/log" -g mysql -m 0700 -o mysql -v
 
 	mysqld --initialize-insecure
 
-	block_finish "Datadir initialization."
+	block_finish "Datadir initialization"
 }
 
 function init_liferay_db {
@@ -38,7 +38,7 @@ function init_liferay_db {
 		FLUSH PRIVILEGES ;
 	EOSQL
 
-	block_finish "Initialize 'lportal' database."
+	block_finish "Initialize 'lportal' database"
 }
 
 function get_vault_mysql_liferay_password {
@@ -66,11 +66,11 @@ function get_vault_mysql_root_password {
 }
 
 function load_timezones {
-	block_begin "Load time zones."
+	block_begin "Load time zones"
 
 	mysql_tzinfo_to_sql /usr/share/zoneinfo | sed "s/Local time zone must be set--see zic manual page/FCTY/" | mysql mysql
 
-	block_finish "Load time zones."
+	block_finish "Load time zones"
 }
 
 function main {
@@ -94,7 +94,7 @@ function main {
 }
 
 function set_basics {
-	block_begin "Set the basics of the 'mysql' database."
+	block_begin "Set the basics of the 'mysql' database"
 
 	mysql <<-EOSQL
 		-- What's done in this file shouldn't be replicated or products like mysql-fabric won't work
@@ -113,18 +113,18 @@ function set_basics {
 
 	echo -e "[client]\nuser = root\npassword = ${MYSQL_ROOT_PASSWORD}" > "${HOME}/.my.cnf"
 
-	block_finish "Set the basics of the 'mysql' database."
+	block_finish "Set the basics of the 'mysql' database"
 }
 
 function start_temporary {
-	block_begin "Initialize the 'mysql' database, temporary first run."
+	block_begin "Initialize the 'mysql' database, temporary first run"
 
 	mysqld --skip-networking &
 	pid="$!"
 
 	for second in {120..0}
 	do
-		msg "MySQL init process in progress... ${second} seconds left."
+		msg "MySQL init process in progress... ${second} seconds left"
 
 		if (echo 'SELECT 1' | mysql &>/dev/null)
 		then
