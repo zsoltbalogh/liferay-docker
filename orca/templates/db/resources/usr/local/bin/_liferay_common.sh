@@ -16,12 +16,12 @@ function fail {
 	exit 1
 }
 
-function msg {
-	lecho "--- ${1}"
-}
-
 function lecho {
 	local ts=$(date "+%Y-%m-%d %T.%6N")
 
 	echo "${ts} [orca] ${1}"
+}
+
+function msg {
+	lecho "--- ${1}"
 }
