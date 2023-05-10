@@ -21,7 +21,7 @@ function get_token {
 	do
 		echo "Fetching vault login token (${round}/30)."
 
-		local token=$(curl --fail --request POST --silent "http://${ORCA_VAULT_ADDRESSES}/v1/auth/userpass-${1}/login/${1}" --data "{\"password\": \"${ORCA_VAULT_SERVICE_PASSWORD}\"}")
+		local token=$(curl --data "{\"password\": \"${ORCA_VAULT_SERVICE_PASSWORD}\"}" --fail --request POST --silent "http://${ORCA_VAULT_ADDRESSES}/v1/auth/userpass-${1}/login/${1}")
 
 		if [ -n "${token}" ]
 		then
