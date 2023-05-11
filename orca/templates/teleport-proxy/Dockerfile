@@ -1,6 +1,6 @@
 FROM public.ecr.aws/gravitational/teleport:12
 
-COPY resources/etc/teleport/teleport.yaml /etc/teleport/
+COPY resources/etc/teleport/ /etc/teleport/
 COPY resources/root/ /root/
 COPY resources/usr/local/bin/ /usr/local/bin/
 
