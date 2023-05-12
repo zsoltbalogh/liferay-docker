@@ -1,4 +1,4 @@
-FROM public.ecr.aws/gravitational/teleport:12
+FROM public.ecr.aws/gravitational/teleport:13
 
 COPY resources/etc/teleport/ /etc/teleport/
 COPY resources/root/ /root/
