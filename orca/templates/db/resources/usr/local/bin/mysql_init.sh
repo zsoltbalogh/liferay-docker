@@ -2,34 +2,31 @@
 
 set -e
 
-# shellcheck disable=SC1091
-. _liferay_common.sh
-
 function check_setup {
-	block_begin "Check if MySQL is set up"
+	echo -n "Check if MySQL is set up..."
 
 	if [ -d /var/lib/mysql/data/mysql ]
 	then
-		block_finish "Check if MySQL is set up: DONE"
+		echo "done"
 
 		exit 0
 	else
-		block_finish "Check if MySQL is set up: NOT DONE"
+		echo "not done."
 	fi
 }
 
 function init_data {
-	block_begin "Initialize data"
+	echo -n "Initialize data..."
 
 	install -d "${HOME}/data" "${HOME}/log" -g mysql -m 0700 -o mysql -v
 
 	mysqld --initialize-insecure
 
-	block_finish "Datadir initialization"
+	echo "done."
 }
 
 function init_liferay_db {
-	block_begin "Initialize 'lportal' database"
+	echo -n "Initialize 'lportal' database"
 
 	mysql <<-EOSQL
 		CREATE DATABASE lportal;
@@ -38,7 +35,7 @@ function init_liferay_db {
 		FLUSH PRIVILEGES ;
 	EOSQL
 
-	block_finish "Initialize 'lportal' database"
+	echo "done."
 }
 
 function get_vault_mysql_liferay_password {
@@ -46,7 +43,7 @@ function get_vault_mysql_liferay_password {
 
 	if [ -z "${MYSQL_LIFERAY_PASSWORD}" ]
 	then
-		fail "MYSQL_LIFERAY_PASSWORD is not set"
+		echo "MYSQL_LIFERAY_PASSWORD is not set"
 
 		exit 1
 	fi
@@ -57,7 +54,7 @@ function get_vault_mysql_root_password {
 
 	if [ -z "${MYSQL_ROOT_PASSWORD}" ]
 	then
-		fail "MYSQL_ROOT_PASSWORD is not set"
+		echo "MYSQL_ROOT_PASSWORD is not set"
 
 		exit 1
 	fi
@@ -66,11 +63,11 @@ function get_vault_mysql_root_password {
 }
 
 function load_timezones {
-	block_begin "Load time zones"
+	echo -n "Load time zones..."
 
 	mysql_tzinfo_to_sql /usr/share/zoneinfo | sed "s/Local time zone must be set--see zic manual page/FCTY/" | mysql mysql
 
-	block_finish "Load time zones"
+	echo "done."
 }
 
 function main {
@@ -94,7 +91,7 @@ function main {
 }
 
 function set_basics {
-	block_begin "Set the basics of the 'mysql' database"
+	echo -n "Set the basics of the 'mysql' database..."
 
 	mysql <<-EOSQL
 		-- What's done in this file shouldn't be replicated or products like mysql-fabric won't work
@@ -113,18 +110,18 @@ function set_basics {
 
 	echo -e "[client]\nuser = root\npassword = ${MYSQL_ROOT_PASSWORD}" > "${HOME}/.my.cnf"
 
-	block_finish "Set the basics of the 'mysql' database"
+	echo "done."
 }
 
 function start_temporary {
-	block_begin "Initialize the 'mysql' database, temporary first run"
+	echo -n "Initialize the 'mysql' database, temporary first run..."
 
 	mysqld --skip-networking &
 	pid="$!"
 
 	for second in {120..0}
 	do
-		msg "MySQL init process in progress... ${second} seconds left"
+		echo "MySQL init process in progress... ${second} seconds left"
 
 		if (echo 'SELECT 1' | mysql &>/dev/null)
 		then
@@ -136,27 +133,27 @@ function start_temporary {
 
 	if [ "${second}" = 0 ]
 	then
-		fail "MySQL init process failed"
+		echo "MySQL init process failed"
 
 		exit 1
 	fi
 
-	block_finish "Initialize the 'mysql' database, temporary first run"
+	echo "done."
 }
 
 function shut_down_temporary {
-	block_begin "Shutting down the temporary mysqld instance"
+	echo -n "Shutting down the temporary mysqld instance..."
 
-	msg "kill -s TERM ${pid}"
+	echo "kill -s TERM ${pid}"
 
 	if (! kill -s TERM "${pid}" || wait "${pid}")
 	then
-		fail "Temporary mysql instance cannot be shut down"
+		echo "Temporary mysql instance cannot be shut down"
 
 		exit 1
 	fi
 
-	block_finish "Shutting down the temporary mysqld instance"
+	echo "done."
 }
 
 main
