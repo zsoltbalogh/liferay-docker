@@ -15,8 +15,7 @@ ENV TZ Etc/UTC
 RUN groupadd -g 1001 mysql && \
 	useradd -d /var/lib/mysql -g 1001 -s /bin/false -u 1001 mysql
 
-RUN set -ex; \
-	apt-get update && \
+RUN apt-get update && \
 	apt-get install --no-install-recommends -y ca-certificates curl tzdata && \
 	curl -L https://github.com/percona/percona-repositories/raw/main/deb/percona-keyring.gpg -o /etc/apt/trusted.gpg.d/percona.gpg && \
 	echo "deb http://repo.percona.com/ps-80/apt jammy main" > /etc/apt/sources.list.d/percona-ps-80.list && \
