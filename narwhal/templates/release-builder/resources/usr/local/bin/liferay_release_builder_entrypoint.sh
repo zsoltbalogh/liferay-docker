@@ -163,7 +163,6 @@ function main {
 	background_run clone_repository liferay-binaries-cache-2020
 	background_run clone_repository liferay-portal-ee
 	time_run clone_repository liferay-release-tool-ee
-
 	wait
 
 	time_run setup_remote
@@ -173,10 +172,10 @@ function main {
 	background_run init_gcs
 	background_run update_portal_git
 	time_run update_release_tool_git
-	
+	wait
+
 	time_run pre_compile_setup
 
-	wait
 
 	DXP_VERSION=$(get_dxp_version)
 
@@ -198,7 +197,6 @@ function main {
 
 		background_run prepare_update_dir
 		time_run compile_dxp
-
 		wait
 
 		time_run create_hotfix
