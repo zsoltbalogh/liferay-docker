@@ -254,6 +254,7 @@ function generate_configuration {
 	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/conf.d/ build/webserver/resources/etc/nginx
 	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/public/ build/webserver/resources/etc/nginx
 	cp ../resources/webserver/etc/nginx/nginx.conf build/webserver/resources/etc/nginx
+	cp -r ../resources/webserver/modsec build/webserver/resources/etc/nginx/
 
 	mkdir -p build/webserver/resources/usr/local/bin/
 
