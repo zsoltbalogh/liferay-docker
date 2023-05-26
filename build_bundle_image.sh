@@ -276,6 +276,11 @@ function set_parent_image {
 }
 
 function update_patching_tool {
+	if [ -e "${TEMP_DIR}/liferay/tomcat" ]
+	then
+		sed -i "s@tomcat-[0-9]*.[0-9]*.[0-9]*/@tomcat/@g" "${TEMP_DIR}/liferay/patching-tool/default.properties"
+	fi
+
 	if [ -e "${TEMP_DIR}/liferay/patching-tool" ]
 	then
 		local patching_tool_minor_version=$("${TEMP_DIR}"/liferay/patching-tool/patching-tool.sh info | grep "patching-tool version")
@@ -323,7 +328,7 @@ function update_patching_tool {
 		echo "Updating Patching Tool to version ${latest_patching_tool_version}."
 		echo ""
 
-		download "downloads/patching-tool/patching-tool-${latest_patching_tool_version}.zip" "files.liferay.com/private/ee/fix-packs/patching-tool/patching-tool-${latest_patching_tool_version}.zip"
+		download "downloads/patching-tool/patching-tool-${latest_patching_tool_version}.zip" "releases-cdn.liferay.com/tools/patching-tool/patching-tool-${latest_patching_tool_version}.zip"
 
 		unzip -d "${TEMP_DIR}/liferay" -q "downloads/patching-tool/patching-tool-${latest_patching_tool_version}.zip"
 

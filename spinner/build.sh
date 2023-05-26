@@ -3,7 +3,49 @@
 function check_usage {
 	check_utils docker
 
-	ENVIRONMENT=${1}
+	ENVIRONMENT=
+	DATABASE_IMPORT=
+	DATABASE_PORT=13306
+
+	while [ "${1}" != "" ]
+	do
+		case ${1} in
+			-d)
+				shift
+
+				DATABASE_IMPORT=${1}
+
+				;;
+			-h)
+				print_help
+
+				;;
+			-o)
+				shift
+
+				STACK_NAME=env-${1}
+
+				;;
+			-r)
+				DATABASE_PORT=$((RANDOM%100 + 13300))
+
+				echo "Database port: ${DATABASE_PORT}"
+
+				;;
+			-s)
+				shift
+
+				DATABASE_SKIP_TABLE=${1}
+
+				;;
+			*)
+				ENVIRONMENT=${1}
+
+				;;
+		esac
+
+		shift
+	done
 
 	if [ ! -n "${ENVIRONMENT}" ]
 	then
@@ -28,13 +70,7 @@ function check_usage {
 
 	if [ ! -e "${LIFERAY_LXC_REPOSITORY_DIR}/liferay/configs/${ENVIRONMENT}" ]
 	then
-		echo "Usage: ${0} <environment>"
-		echo ""
-		echo "By default the x1e4prd environment configuration is used."
-		echo ""
-		echo "Example: ${0} x1e4prd"
-
-		exit 1
+		print_help
 	fi
 
 	if [[ $(find dxp-activation-key -name "*.xml" | wc -l ) -eq 0 ]]
@@ -44,8 +80,19 @@ function check_usage {
 		exit 1
 	fi
 
-	STACK_NAME="env-${ENVIRONMENT}-"$(date +%s)
+	if [ ! -n "${STACK_NAME}" ]
+	then
+		STACK_NAME="env-${ENVIRONMENT}-"$(date +%s)
+	fi
+
 	STACK_DIR=$(pwd)/${STACK_NAME}
+
+	if [ -e "${STACK_DIR}" ]
+	then
+		echo "Stack directory already exists."
+
+		exit 1
+	fi
 
 	mkdir -p "${STACK_DIR}"
 }
@@ -116,7 +163,7 @@ function create_liferay_dockerfile {
 
 function create_webserver_dockerfile {
 	(
-		echo $(head -n 1 ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/Dockerfile)
+		head -n 1 "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/Dockerfile
 
 		echo "COPY resources/etc/nginx /etc/nginx"
 		echo "COPY resources/usr/local /usr/local"
@@ -200,19 +247,21 @@ function generate_configuration {
 	mkdir -p database_import
 
 	mkdir -p build/webserver/resources/etc/nginx
-	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/blocks.d/ build/webserver/resources/etc/nginx
+	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/blocks.d/ build/webserver/resources/etc/nginx
 	rm -f build/webserver/resources/etc/nginx/blocks.d/oauth2_proxy_pass.conf
 	rm -f build/webserver/resources/etc/nginx/blocks.d/oauth2_proxy_protection.conf
 
-	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/conf.d/ build/webserver/resources/etc/nginx
-	cp -a ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/public/ build/webserver/resources/etc/nginx
+	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/conf.d/ build/webserver/resources/etc/nginx
+	cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/public/ build/webserver/resources/etc/nginx
 	cp ../resources/webserver/etc/nginx/nginx.conf build/webserver/resources/etc/nginx
 
 	mkdir -p build/webserver/resources/usr/local/bin/
-	cp -a  ${LIFERAY_LXC_REPOSITORY_DIR}/webserver/configs/common/scripts/10-replace-environment-variables.sh build/webserver/resources/usr/local/bin/ && \
-	chmod +x build/webserver/resources/usr/local/bin/10-replace-environment-variables.sh
 
-	cp -r ../resources/webserver/modsec build/webserver/resources/etc/nginx/
+	if [ -e "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/scripts/10-replace-environment-variables.sh ]
+	then
+		cp -a "${LIFERAY_LXC_REPOSITORY_DIR}"/webserver/configs/common/scripts/10-replace-environment-variables.sh build/webserver/resources/usr/local/bin/
+		chmod +x build/webserver/resources/usr/local/bin/10-replace-environment-variables.sh
+	fi
 
 	mkdir -p build/webserver/resources/etc/usr
 	cp -a ../resources/webserver/usr/ build/webserver/resources/
@@ -244,7 +293,7 @@ function generate_configuration {
 	write "            - MYSQL_USER=dxpcloud"
 	write "        image: mysql:8.0.32"
 	write "        ports:"
-	write "            - 127.0.0.1:13306:3306"
+	write "            - 127.0.0.1:${DATABASE_PORT}:3306"
 	write "        volumes:"
 	write "            - ./database_import:/docker-entrypoint-initdb.d"
 	write "            - mysql-db:/var/lib/mysql"
@@ -274,8 +323,8 @@ function generate_configuration {
 	write "            - 127.0.0.1:80:80"
 
 	write "volumes:"
-	write "     liferay-document-library:"
-	write "     mysql-db:"
+	write "    liferay-document-library:"
+	write "    mysql-db:"
 }
 
 function lcd {
@@ -287,7 +336,64 @@ function main {
 
 	generate_configuration | tee -a "${STACK_DIR}/build.out"
 
+	prepare_database_files
+
+
 	print_image_usage | tee -a "${STACK_DIR}/build.out"
+}
+
+function prepare_database_files {
+	if [ ! -n "${DATABASE_IMPORT}" ]
+	then
+		return
+	fi
+
+	echo "Preparing ${DATABASE_IMPORT} to be imported."
+
+	lcd "${STACK_DIR}"/database_import
+
+	cp "${DATABASE_IMPORT}" .
+
+	if [ $(find . -type f -name "*.gz" | wc -l) -gt 0 ]
+	then
+		echo "Extracting the database import file."
+
+		gzip -d $(find . -type f -name "*.gz") 
+	fi
+
+	mv $(find . -type f) 01_database.sql
+
+	if [ -n "${DATABASE_SKIP_TABLE}" ]
+	then
+		echo "Removing database import for ${DATABASE_SKIP_TABLE}"
+
+		grep -v "^INSERT INTO .${DATABASE_SKIP_TABLE}. VALUES (" < 01_database.sql > 01_database_removed.sql
+
+		rm 01_database.sql
+
+		mv 01_database_removed.sql 01_database.sql
+	fi
+
+	echo "Adding 10_after_import.sql to make some changes in the database to work locally. Please review them before starting the container."
+
+	echo 'UPDATE VirtualHost SET hostname=concat(hostname, ".local");' > 10_after_import.sql
+}
+
+function print_help {
+	echo "Usage: ${0} <environment> -d <database dump to import>"
+	echo ""
+	echo "The script can be configured with the following arguments:"
+	echo ""
+	echo "    -d (optional): Database dump file, .gz is supported. After importing the virtual hosts will be renamed *.local."
+	echo "    -o (optional): The name of the directory where the configuration will be created. It will be prefixed with 'env-'."
+	echo "    -r (optional): Randomize the mysql port opened on localhost to enable multiple database servers run at the same time"
+	echo "    -s (optional): Skipping importing the specified table name"
+	echo ""
+	echo "By default the x1e4prd environment configuration is used."
+	echo ""
+	echo "Example: ${0} x1e4prd -d sql.gz -o test"
+
+	exit 2
 }
 
 function print_image_usage {
