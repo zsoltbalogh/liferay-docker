@@ -1,5 +1,4 @@
-# ubuntu:jammy-20230308
-FROM ubuntu:jammy@sha256:7a57c69fe1e9d5b97c5fe649849e79f2cfc3bf11d10bbd5218b4eb61716aebe6
+FROM liferay/base:latest
 
 CMD ["mysqld"]
 
@@ -8,12 +7,11 @@ COPY resources/usr/local/bin/ /usr/local/bin/
 
 ENTRYPOINT ["/usr/local/bin/liferay_entrypoint.sh"]
 
-ENV DEBIAN_FRONTEND noninteractive
 ENV PS_VERSION 8.0.32-24
-ENV TZ Etc/UTC
 
-RUN groupadd -g 1001 mysql && \
-	useradd -d /var/lib/mysql -g 1001 -s /bin/false -u 1001 mysql
+RUN userdel -r liferay && \
+	groupadd -g 1000 mysql && \
+	useradd -d /var/lib/mysql -g 1000 -s /bin/false -u 1000 mysql
 
 RUN apt-get update && \
 	apt-get install --no-install-recommends -y ca-certificates curl tzdata && \
