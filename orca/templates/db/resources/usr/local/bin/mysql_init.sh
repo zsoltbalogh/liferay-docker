@@ -3,11 +3,11 @@
 set -e
 
 function check_setup {
-	echo -n "Check if MySQL is set up..."
+	echo -n "Check if MySQL is already set up... "
 
 	if [ -d /var/lib/mysql/data/mysql ]
 	then
-		echo "done"
+		echo "done."
 
 		exit 0
 	else
@@ -16,7 +16,7 @@ function check_setup {
 }
 
 function init_data {
-	echo -n "Initialize data..."
+	echo -n "Initialize data... "
 
 	install -d "${HOME}/data" "${HOME}/log" -g mysql -m 0700 -o mysql -v
 
@@ -26,7 +26,7 @@ function init_data {
 }
 
 function init_liferay_db {
-	echo -n "Initialize 'lportal' database"
+	echo -n "Initialize 'lportal' database... "
 
 	mysql <<-EOSQL
 		CREATE DATABASE lportal;
@@ -63,7 +63,7 @@ function get_vault_mysql_root_password {
 }
 
 function load_timezones {
-	echo -n "Load time zones..."
+	echo -n "Load time zones... "
 
 	mysql_tzinfo_to_sql /usr/share/zoneinfo | sed "s/Local time zone must be set--see zic manual page/FCTY/" | mysql mysql
 
@@ -91,7 +91,7 @@ function main {
 }
 
 function set_basics {
-	echo -n "Set the basics of the 'mysql' database..."
+	echo -n "Set the basics of the 'mysql' database... "
 
 	mysql <<-EOSQL
 		-- What's done in this file shouldn't be replicated or products like mysql-fabric won't work
@@ -114,15 +114,13 @@ function set_basics {
 }
 
 function start_temporary {
-	echo -n "Initialize the 'mysql' database, temporary first run..."
+	echo -n "Initialize the 'mysql' database, temporary first run... "
 
 	mysqld --skip-networking &
 	pid="$!"
 
-	for second in {120..0}
+	for second in {0..120}
 	do
-		echo "MySQL init process in progress... ${second} seconds left"
-
 		if (echo 'SELECT 1' | mysql &>/dev/null)
 		then
 			break
@@ -133,7 +131,7 @@ function start_temporary {
 
 	if [ "${second}" = 0 ]
 	then
-		echo "MySQL init process failed"
+		echo "failed."
 
 		exit 1
 	fi
@@ -142,13 +140,11 @@ function start_temporary {
 }
 
 function shut_down_temporary {
-	echo -n "Shutting down the temporary mysqld instance..."
-
-	echo "kill -s TERM ${pid}"
+	echo -n "Shutting down the temporary mysqld instance... "
 
 	if (! kill -s TERM "${pid}" || wait "${pid}")
 	then
-		echo "Temporary mysql instance cannot be shut down"
+		echo "failed."
 
 		exit 1
 	fi
