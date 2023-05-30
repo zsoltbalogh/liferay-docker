@@ -17,9 +17,9 @@ function check_usage {
 function get_token {
 	local round=0
 
-	for round in $(seq 30)
+	for round in {0..30}
 	do
-		echo "Fetching vault login token (${round}/30)."
+		echo "Fetching vault login token (${round}/30)"
 
 		local token=$(curl --data "{\"password\": \"${ORCA_VAULT_SERVICE_PASSWORD}\"}" --fail --request POST --silent "http://${ORCA_VAULT_ADDRESSES}/v1/auth/userpass-${1}/login/${1}")
 
@@ -33,7 +33,7 @@ function get_token {
 
 	if [ ! -n "${token}" ]
 	then
-		echo "Unable to fetch vault login token."
+		echo "Unable to fetch vault login token"
 
 		exit 1
 	fi
@@ -54,24 +54,17 @@ function load_secrets {
 	do
 		local round=0
 
-		for round in $(seq 30)
+		for round in {0..30}
 		do
-			echo "Fetching secret \"${secret}\" (${round}/40)."
+			echo "Fetching secret \"${secret}\" (${round}/30)"
 
 			local password=$(curl --fail --header "X-Vault-Token: ${token}" --request GET --silent "http://${ORCA_VAULT_ADDRESSES}/v1/secret/data/${secret}")
 
 			local exit_code="${?}"
 
-			if [ "${exit_code}" -gt 0 ]
+			if [ "${exit_code}" -eq 0 ] && [ -n "${password}" ]
 			then
-				echo "Unable to fetch secret \"${secret}\": ${exit_code}."
-
-				sleep 3
-			fi
-
-			if [ -n "${password}" ]
-			then
-				echo "Fetched secret \"${secret}\"."
+				echo "Fetched secret \"${secret}\""
 
 				break
 			fi
@@ -109,7 +102,7 @@ function main {
 }
 
 function wait_for_vault {
-	echo "Connecting to vault ${ORCA_VAULT_ADDRESSES}."
+	echo "Connecting to vault ${ORCA_VAULT_ADDRESSES}"
 
 	while true
 	do
@@ -117,13 +110,13 @@ function wait_for_vault {
 		do
 			if ( curl --max-time 3 --silent "http://${ORCA_VAULT_ADDRESSES}/v1/sys/health" | grep "\"sealed\":false" &>/dev/null)
 			then
-				echo "Vault ${ORCA_VAULT_ADDRESSES} is available."
+				echo "Vault ${ORCA_VAULT_ADDRESSES} is available"
 
 				return
 			fi
 		done
 
-		echo "Waiting for at least one vault to become available."
+		echo "Waiting for at least one vault to become available"
 
 		sleep 3
 	done
