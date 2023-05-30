@@ -1,9 +1,6 @@
-FROM ubuntu:jammy
+FROM liferay/base:latest
 
 CMD ["teleport", "start", "--auth-server=teleport-proxy", "--roles=node", "--token=/agent-test/token.txt"]
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Etc/UTC
 
 RUN apt update && \
 	apt upgrade -y && \
@@ -16,8 +13,7 @@ RUN curl https://apt.releases.teleport.dev/gpg -o /usr/share/keyrings/teleport-a
 	apt clean && \
 	rm -fr /var/lib/apt/lists/*
 
-RUN adduser liferay --gecos "Liferay common user" --disabled-password && \
-	install -d /home/liferay/.ssh -g liferay -m 0700 -o liferay && \
+RUN install -d /home/liferay/.ssh -g liferay -m 0700 -o liferay && \
 	echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK9cRilRehhA3bBKZfd8OITMFVyzQBUvCjvbejLsJavD tamas.papp@liferay" > /home/liferay/.ssh/authorized_keys && \
 	echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILOu945eSM8vlNkxMmnYrIYkoFaPO0L7+M0cWnV8/tH2 zsolt.balogh@liferay" >> /home/liferay/.ssh/authorized_keys && \
 	chown -R liferay:liferay /home/liferay && \

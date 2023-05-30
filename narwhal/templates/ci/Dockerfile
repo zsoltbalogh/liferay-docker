@@ -4,9 +4,7 @@ CMD ["bash"]
 
 COPY resources/usr/local/sbin/ /usr/local/sbin/
 
-ENV DEBIAN_FRONTEND=noninteractive
 ENV JAVA_VERSION=zulu11
-ENV TZ=Etc/UTC
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/sbin/jenkins.sh"]
 

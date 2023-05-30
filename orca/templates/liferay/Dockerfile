@@ -4,7 +4,7 @@ FROM liferay/dxp@sha256:cb01f23843fc4bb66285778795eb0dce1c7a8fb468668c1c3b0fb370
 USER 0
 
 RUN apt-get update && \
-	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes mariadb-client && \
+	apt-get install --no-install-recommends --yes mariadb-client && \
 	apt-get upgrade --yes && \
 	apt-get clean
 
