@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-
+source $(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")/_liferay_common.sh
 source $(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")/_common.sh
 
 function build_service_antivirus {
@@ -413,7 +413,7 @@ function check_usage {
 
 	VERSION="${1}"
 
-	check_utils docker pwgen yq
+	lc_check_utils docker pwgen yq
 }
 
 function choose_configuration {

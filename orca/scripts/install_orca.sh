@@ -1,8 +1,6 @@
 #!/bin/bash
 
-function lcd {
-	cd "${1}" || exit 3
-}
+source $(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")/_liferay_common.sh
 
 function main {
 	apt-get update
@@ -15,7 +13,7 @@ function main {
 
 	mkdir -p /opt/liferay/orca
 
-	lcd /opt/liferay/orca
+	lc_cd /opt/liferay/orca
 
 	git init
 	git remote add origin https://github.com/liferay/liferay-docker.git
@@ -29,7 +27,7 @@ function main {
 	# TODO Fix /opt/liferay/orca/orca
 	#
 
-	lcd orca
+	lc_cd orca
 
 	#
 	# TODO install

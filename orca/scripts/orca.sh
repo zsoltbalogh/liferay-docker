@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source $(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")/_liferay_common.sh
 source $(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")/_common.sh
 
 function check_usage {
@@ -41,7 +42,7 @@ function command_all {
 }
 
 function command_backup {
-	lcd builds/deploy
+	lc_cd builds/deploy
 
 	docker_compose exec backup /usr/local/bin/backup.sh
 }
@@ -51,7 +52,7 @@ function command_build {
 }
 
 function command_deploy {
-	lcd builds
+	lc_cd builds
 
 	ln -fns "${1}" deploy
 }
@@ -69,7 +70,7 @@ function command_install {
 }
 
 function command_mysql {
-	lcd builds/deploy
+	lc_cd builds/deploy
 
 	docker_compose exec db /usr/local/bin/connect_to_mysql.sh
 }
@@ -91,13 +92,13 @@ function command_setup_shared_volume {
 }
 
 function command_ssh {
-	lcd builds/deploy
+	lc_cd builds/deploy
 
 	docker_compose exec "${1}" /bin/bash
 }
 
 function command_unseal {
-	lcd builds/deploy
+	lc_cd builds/deploy
 
 	docker_compose exec vault /usr/bin/vault operator unseal
 }
@@ -108,7 +109,7 @@ function command_up {
 		exit 1
 	fi
 
-	lcd builds/deploy
+	lc_cd builds/deploy
 
 	for service in $(docker_compose config --services)
 	do
@@ -132,14 +133,14 @@ function execute_command {
 	else
 		echo "${1}: Unrecognized command for orca, passing to docker compose."
 
-		lcd builds/deploy
+		lc_cd builds/deploy
 
 		docker_compose "${@}"
 	fi
 }
 
 function main {
-	lcd "$(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")/../"
+	lc_cd "$(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")/../"
 
 	check_usage "${@}"
 
