@@ -153,6 +153,32 @@ function lc_echo_time {
 	printf "%02dh:%02dm:%02ds" $((seconds / 3600)) $((seconds % 3600 / 60)) $((seconds % 60))
 }
 
+function _lc_interactive {
+	if [ -t 0 ]
+	then
+	    export INTERACTIVE_SESSION="true"
+	else
+		export INTERACTIVE_SESSION="false"
+	fi
+
+	if [ "${INTERACTIVE_SESSION}" == "true" ]
+	then
+		export green="\e[1;32m"
+		export red="\e[1;31m"
+		export blue="\e[1;34m"
+		export purple="\e[1;35m"
+		export cyan="\e[1;36m"
+		export nocolor="\e[0m"
+	fi
+
+	function lc_say {
+		echo -ne "${1}"
+		echo -e "${nocolor}"
+	}
+
+	export -f lc_say
+}
+
 function lc_log {
 	local level=${1}
 	local message=${2}
@@ -204,13 +230,13 @@ function lc_time_run {
 
 	if [ "${exit_code}" == "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
 	then
-		echo -e "$(lc_date) < ${*}: \e[1;34mSkip\e[0m"
+		lc_say "$(lc_date) < ${*}: ${blue}Skip"
 	else
 		local seconds=$((end_time - start_time))
 
 		if [ "${exit_code}" -gt 0 ]
 		then
-			echo -e "$(lc_date) ! ${*} exited with \e[1;31merror\e[0m in $(lc_echo_time ${seconds}) (exit code: ${exit_code})."
+			lc_say "$(lc_date) ! ${*} exited with ${red}error in $(lc_echo_time ${seconds}) (exit code: ${exit_code})."
 
 			if [ -z "${LIFERAY_COMMON_DEBUG_ENABLED}" ] && [ -n "${LIFERAY_COMMON_LOG_DIR}" ]
 			then
@@ -221,12 +247,14 @@ function lc_time_run {
 
 			exit ${exit_code}
 		else
-			echo -e "$(lc_date) < ${*}: \e[1;32mSuccess\e[0m in $(lc_echo_time ${seconds})"
+			lc_say "$(lc_date) < ${*}: ${green}Success in $(lc_echo_time ${seconds})"
 		fi
 	fi
 }
 
 function _lc_init {
+	_lc_interactive
+
 	LIFERAY_COMMON_START_TIME=$(date +%s)
 
 	if [ -z "${LIFERAY_COMMON_DOWNLOAD_CACHE_DIR}" ]
