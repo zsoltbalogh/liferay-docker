@@ -189,6 +189,19 @@ function build_service_web_server {
 	sed -i build/web-server/resources/usr/local/etc/haproxy/haproxy.cfg -e "s/server-template.*/balance roundrobin\n\toption httpchk\n\tserver s1 liferay-1:8080 check/"
 
 	#
+	# Copy from OWASP Docker image
+	#
+
+	docker pull --quiet owasp/modsecurity-crs:nginx >/dev/null
+
+	local owasp_container=$(docker create owasp/modsecurity-crs:nginx)
+
+	mkdir -p build/web-server/resources/etc/nginx/modsec
+
+	docker cp "${owasp_container}":/etc/modsecurity.d/owasp-crs/crs-setup.conf build/web-server/resources/etc/nginx/modsec
+	docker cp "${owasp_container}":/etc/modsecurity.d/owasp-crs/rules build/web-server/resources/etc/nginx/modsec
+
+	#
 	# Copy from liferay-lxc
 	#
 
