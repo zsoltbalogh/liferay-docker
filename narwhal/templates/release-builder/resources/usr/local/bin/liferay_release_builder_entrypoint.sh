@@ -50,17 +50,7 @@ function main {
 
 	if [ "${NARWHAL_OUTPUT}" == "release" ]
 	then
-		lc_time_run add_licensing
-
-		lc_time_run compile_dxp
-
-		lc_time_run obfuscate_licensing
-
 		lc_time_run build_dxp
-
-		lc_time_run deploy_elasticsearch_sidecar
-
-		#lc_time_run warm_up_tomcat
 
 		lc_time_run package_bundle
 
@@ -69,12 +59,6 @@ function main {
 		lc_time_run add_hotfix_testing_code
 
 		lc_time_run set_hotfix_name
-
-		lc_time_run add_licensing
-
-		lc_time_run compile_dxp
-
-		lc_time_run obfuscate_licensing
 
 		background_run prepare_release_dir
 		lc_time_run build_dxp
