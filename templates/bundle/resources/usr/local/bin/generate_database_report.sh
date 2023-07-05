@@ -17,8 +17,6 @@ function check_usage {
 function main {
 	check_usage
 
-	local i=0
-
 	echo "<h1>Table of contents</h1>" >> "${CONTENT_FILE}"
 
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
@@ -46,11 +44,11 @@ function main {
 }
 
 function run_query {
-	i=$((i+1))
+	ANCHOR_ID=$((ANCHOR_ID+1))
 
-	echo "<a href=\"#$i\">$i. ${2}</a><br />" >> "${CONTENT_FILE}"
+	echo "<a href=\"#${ANCHOR_ID}\">${ANCHOR_ID}. ${2}</a><br />" >> "${CONTENT_FILE}"
 
-	echo "<h1 id=$i>${2}</h1>" >> "${QUERY_FILE}"
+	echo "<h1 id=\"${ANCHOR_ID}\">${2}</h1>" >> "${QUERY_FILE}"
 
 	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" >> "${QUERY_FILE}"
 }
