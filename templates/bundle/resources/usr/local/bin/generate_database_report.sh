@@ -5,15 +5,13 @@ source /usr/local/bin/_liferay_common.sh
 function check_usage {
 	lc_check_utils mysql || exit 1
 
-	LIFERAY_REPORTS_DIRECTORY="${LIFERAY_HOME}/data/reports"
-
 	mkdir -p "${LIFERAY_REPORTS_DIRECTORY}"
 
 	QUERY_FILE=$(mktemp)
 
 	CONTENT_FILE=$(mktemp)
 
-	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
+	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
 }
 
 function main {
