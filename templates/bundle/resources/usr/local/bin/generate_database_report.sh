@@ -9,11 +9,19 @@ function check_usage {
 
 	mkdir -p "${LIFERAY_REPORTS_DIRECTORY}"
 
+	QUERY_FILE=query_file
+
+	CONTENT_FILE=content_file	
+
 	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
 }
 
 function main {
 	check_usage
+
+	local i=0
+
+	echo "<h1>Table of contents</h1>" >> "${CONTENT_FILE}"
 
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
 
@@ -30,12 +38,22 @@ function main {
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM FragmentEntryLink;"
 
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM QUARTZ_TRIGGERS;"
+
+	cat "${QUERY_FILE}" | sed -e "s#<TD>#<TD><PRE>#g"  |  sed -e "s#</TD>#</PRE></TD>#g" > temp_output.html
+
+	cat "${CONTENT_FILE}" temp_output.html > "${REPORTS_FILE}"
+
+	rm "${CONTENT_FILE}" "${QUERY_FILE}" temp_output.html
 }
 
 function run_query {
-	echo "<h1>${2}</h1>" >> "${REPORTS_FILE}"
+	i=$((i+1))
 
-	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" >> "${REPORTS_FILE}"
+	echo "<a href=#"$i">$i. ${2}</a>" >> "${CONTENT_FILE}"
+
+	echo "<h1 id=$i>${2}</h1>" >> "${QUERY_FILE}"
+
+	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" >> "${QUERY_FILE}"
 }
 
 main "${@}"
