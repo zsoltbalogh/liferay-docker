@@ -166,7 +166,7 @@ function build_service_search {
 function build_service_web_server {
 
 	#
-	# Copy from Docker image
+	# Copy from the web server Docker image
 	#
 
 	local web_server_dir="${SPINNER_LIFERAY_LXC_REPOSITORY_DIR}"/webserver
@@ -179,17 +179,33 @@ function build_service_web_server {
 
 	local web_server_container=$(docker create "${web_server_image}")
 
-	mkdir -p build/web-server/resources/etc/nginx
-
-	docker cp "${web_server_container}":/etc/nginx/nginx.conf build/web-server/resources/etc/nginx/nginx.conf
-
-	sed -i build/web-server/resources/etc/nginx/nginx.conf -e "s/add_header Strict-Transport-Security/#add_header Strict-Transport-Security/"
-
 	mkdir -p build/web-server/resources/usr/local/etc/haproxy
 
 	docker cp "${web_server_container}":/usr/local/etc/haproxy/haproxy.cfg build/web-server/resources/usr/local/etc/haproxy/haproxy.cfg
 
 	sed -i build/web-server/resources/usr/local/etc/haproxy/haproxy.cfg -e "s/server-template.*/balance roundrobin\n\toption httpchk\n\tserver s1 liferay-1:8080 check/"
+
+	docker rm "${web_server_container}" >/dev/null
+
+	#
+	# Copy from the OWASP Docker image
+	#
+
+	if [ -n "${MOD_SECURITY_ENABLED}" ]
+	then
+		docker pull --quiet owasp/modsecurity-crs:nginx >/dev/null
+
+		local owasp_container=$(docker create owasp/modsecurity-crs:nginx)
+
+		mkdir -p build/web-server/resources/etc/nginx/modsec
+
+		docker cp "${owasp_container}":/etc/modsecurity.d/owasp-crs/crs-setup.conf build/web-server/resources/etc/nginx/modsec
+		docker cp "${owasp_container}":/etc/modsecurity.d/owasp-crs/rules build/web-server/resources/etc/nginx/modsec
+
+		docker rm "${owasp_container}" >/dev/null
+
+		echo "Include /etc/nginx/modsec/rules/*.conf" > build/web-server/resources/etc/nginx/modsec/owasp-crs-rules.conf
+	fi
 
 	#
 	# Copy from liferay-lxc
@@ -198,6 +214,8 @@ function build_service_web_server {
 	mkdir -p web-server_mount/configs
 
 	cp -a "${web_server_dir}"/configs/* web-server_mount/configs
+
+	sed -i web-server_mount/configs/common/nginx.conf -e "s/access_log.*/access_log off;/"
 
 	echo "Deleting the following files from the web server configuration so it can run locally:"
 	echo ""
@@ -217,15 +235,23 @@ function build_service_web_server {
 
 	(
 		head -n 1 "${web_server_dir}"/Dockerfile
+
 		echo ""
-		echo "COPY resources/etc/nginx /etc/nginx"
 		echo "COPY resources/usr/local /usr/local"
 		echo ""
 		echo "ENV ERROR_LOG_LEVEL=warn"
 		echo "ENV LCP_PROJECT_ENVIRONMENT=local"
 		echo "ENV LCP_WEBSERVER_GLOBAL_TIMEOUT=1h"
 		echo "ENV LCP_WEBSERVER_PROXY_MAX_TEMP_FILE_SIZE=0"
-		echo "ENV NGINX_MODSECURITY_MODE=off"
+
+		if [ -n "${MOD_SECURITY_ENABLED}" ]
+		then
+			echo "ENV LCP_WEBSERVER_MODSECURITY=On"
+			echo "ENV NGINX_MODSECURITY_MODE=on"
+		else
+			echo "ENV NGINX_MODSECURITY_MODE=off"
+		fi
+
 		echo "ENV PROXY_ADDRESS=127.0.0.1:81"
 
 	) > build/web-server/Dockerfile
@@ -275,6 +301,10 @@ function check_usage {
 				;;
 			-h)
 				print_help
+
+				;;
+			-m)
+				MOD_SECURITY_ENABLED=true
 
 				;;
 			-o)
@@ -436,6 +466,7 @@ function print_help {
 	echo "The script can be configured with the following arguments:"
 	echo ""
 	echo "    -d (optional): Set the database import file (raw or with a .gz suffix). Virtual hosts will be suffixed with .local (e.g. abc.liferay.com becomes abc.liferay.com.local)."
+	echo "    -m (optional): Enable mod_security on the web server with the rules from OWASP Top 10."
 	echo "    -o (optional): Set directory name where the stack configuration will be created. It will be prefixed with \"env-\"."
 	echo "    -r (optional): Randomize the MySQL port opened on localhost to enable multiple database servers at the same time"
 	echo "    -s (optional): Skip the specified table name in the database import"
