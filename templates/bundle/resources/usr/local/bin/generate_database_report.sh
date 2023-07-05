@@ -9,9 +9,9 @@ function check_usage {
 
 	mkdir -p "${LIFERAY_REPORTS_DIRECTORY}"
 
-	QUERY_FILE=query_file
+	QUERY_FILE=$(mktemp)
 
-	CONTENT_FILE=content_file
+	CONTENT_FILE=$(mktemp)
 
 	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
 }
