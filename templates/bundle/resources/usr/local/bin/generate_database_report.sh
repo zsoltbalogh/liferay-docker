@@ -13,8 +13,6 @@ function check_usage {
 
 	CONTENT_FILE=content_file
 
-	TEMP_OUTPUT=temp_output
-
 	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
 }
 
@@ -41,17 +39,18 @@ function main {
 
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM QUARTZ_TRIGGERS;"
 
-	cat "${QUERY_FILE}" | sed -e "s#<TD>#<TD><PRE>#g"  |  sed -e "s#</TD>#</PRE></TD>#g" > "${TEMP_OUTPUT}"
+	sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
+	sed -e "s#</TD>#</PRE></TD>#g" -i "${QUERY_FILE}"
 
-	cat "${CONTENT_FILE}" "${TEMP_OUTPUT}" > "${REPORTS_FILE}"
+	cat "${CONTENT_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
 
-	rm "${CONTENT_FILE}" "${QUERY_FILE}" "${TEMP_OUTPUT}"
+	rm "${CONTENT_FILE}" "${QUERY_FILE}"
 }
 
 function run_query {
 	i=$((i+1))
 
-	echo "<a href=#"$i">$i. ${2}</a><br />" >> "${CONTENT_FILE}"
+	echo "<a href=\"#$i\">$i. ${2}</a><br />" >> "${CONTENT_FILE}"
 
 	echo "<h1 id=$i>${2}</h1>" >> "${QUERY_FILE}"
 
