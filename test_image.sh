@@ -3,19 +3,20 @@
 source ./_common.sh
 
 function check_usage {
-	if [ ! -n "${LIFERAY_DOCKER_IMAGE_ID}" ]
+	if [ ! -n "${LIFERAY_DOCKER_IMAGE_ID}" ] || [ ! -n "${LIFERAY_DOCKER_LOGS_DIR}" ]
 	then
 		echo "Usage: ${0}"
 		echo ""
 		echo "The script reads the following environment variables:"
 		echo ""
 		echo "    LIFERAY_DOCKER_IMAGE_ID: ID of Docker image"
+		echo "    LIFERAY_DOCKER_LOGS_DIR: Path to the logs directory"
 		echo "    LIFERAY_DOCKER_NETWORK_NAME: Docker network name of the CI node container"
 		echo "    LIFERAY_DOCKER_TEST_HOTFIX_URL: URL of the test hotfix to install"
 		echo "    LIFERAY_DOCKER_TEST_INSTALLED_PATCHES: Comma separated list of installed patches (e.g. dxp-4-7210,hotfix-1072-7210)"
 		echo "    LIFERAY_DOCKER_TEST_PATCHING_TOOL_URL: URL of the test Patching Tool to install"
 		echo ""
-		echo "Example: LIFERAY_DOCKER_IMAGE_ID=liferay/dxp:7.2.10.1-sp1-202001171544 ${0}"
+		echo "Example: LIFERAY_DOCKER_IMAGE_ID=liferay/dxp:7.2.10.1-sp1-202001171544 LIFERAY_DOCKER_LOGS_DIR=logs-202306270130 ${0}"
 
 		exit 1
 	fi
@@ -27,6 +28,15 @@ function clean_up_test_directory {
 	if [ "${TEST_RESULT}" -eq 0 ]
 	then
 		rm -fr "${TEST_DIR}"
+	fi
+}
+
+function generate_thread_dump {
+	if [ "${TEST_RESULT}" -gt 0 ]
+	then
+		docker exec -it "${CONTAINER_ID}" /usr/local/bin/generate_thread_dump.sh
+
+		docker cp "${CONTAINER_ID}":/opt/liferay/data/sre/thread_dumps "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}"
 	fi
 }
 
@@ -65,6 +75,8 @@ function main {
 	test_docker_image_patching_tool_updated
 	test_docker_image_scripts_1
 	test_docker_image_scripts_2
+
+	generate_thread_dump
 
 	stop_container
 
@@ -130,9 +142,10 @@ function start_container {
 	then
 		CONTAINER_HOSTNAME=portal-container
 		CONTAINER_HTTP_PORT=8080
-		test_dir="/data/${LIFERAY_DOCKER_NETWORK_NAME}/liferay/liferay-docker/${TEST_DIR}"
 
 		network_parameters="--hostname=${CONTAINER_HOSTNAME} --name=${CONTAINER_HOSTNAME} --network=${LIFERAY_DOCKER_NETWORK_NAME}"
+
+		test_dir="/data/${LIFERAY_DOCKER_NETWORK_NAME}/liferay/liferay-docker/${TEST_DIR}"
 	fi
 
 	CONTAINER_ID=$(docker run -d -p 8080 -v "${test_dir}/mnt:/mnt:rw" ${network_parameters} "${LIFERAY_DOCKER_IMAGE_ID}")
@@ -243,7 +256,7 @@ function test_health_status {
 function test_page {
 	local content
 
-	content=$(curl --fail -s --show-error -L "${1}")
+	content=$(curl --fail --max-time 60 -s --show-error -L "${1}")
 
 	local exit_code=$?
 

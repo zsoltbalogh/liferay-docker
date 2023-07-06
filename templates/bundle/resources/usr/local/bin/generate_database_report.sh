@@ -5,15 +5,19 @@ source /usr/local/bin/_liferay_common.sh
 function check_usage {
 	lc_check_utils mysql || exit 1
 
-	LIFERAY_REPORTS_DIRECTORY="${LIFERAY_HOME}/data/reports"
-
 	mkdir -p "${LIFERAY_REPORTS_DIRECTORY}"
 
-	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
+	QUERY_FILE=$(mktemp)
+
+	TOC_FILE=$(mktemp)
+
+	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
 }
 
 function main {
 	check_usage
+
+	echo "<h1>Table of contents</h1>" >> "${TOC_FILE}"
 
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
 
@@ -30,12 +34,23 @@ function main {
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM FragmentEntryLink;"
 
 	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM QUARTZ_TRIGGERS;"
+
+	sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
+	sed -e "s#</TD>#</PRE></TD>#g" -i "${QUERY_FILE}"
+
+	cat "${TOC_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
+
+	rm "${TOC_FILE}" "${QUERY_FILE}"
 }
 
 function run_query {
-	echo "<h1>${2}</h1>" >> "${REPORTS_FILE}"
+	ANCHOR_ID=$((ANCHOR_ID+1))
 
-	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" >> "${REPORTS_FILE}"
+	echo "<a href=\"#${ANCHOR_ID}\">${ANCHOR_ID}. ${2}</a><br />" >> "${TOC_FILE}"
+
+	echo "<h1 id=\"${ANCHOR_ID}\">${2}</h1>" >> "${QUERY_FILE}"
+
+	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" >> "${QUERY_FILE}"
 }
 
 main "${@}"

@@ -12,7 +12,7 @@ function build_service_antivirus {
 	write "        image: ${antivirus_image}"
 
 	write "        ports:"
-	write "            - \"3310:3310\""
+	write "            - \"${ANTIVIRUS_PORT}:3310\""
 }
 
 function build_service_database {
@@ -29,7 +29,7 @@ function build_service_database {
 	write "            - MYSQL_USER=dxpcloud"
 	write "        image: mysql:8.0.32"
 	write "        ports:"
-	write "            - 127.0.0.1:${DATABASE_PORT}:3306"
+	write "            - ${CONTAINER_PORT_IP}${DATABASE_PORT}:3306"
 	write "        volumes:"
 	write "            - ./database_import:/docker-entrypoint-initdb.d"
 	write "            - mysql-db:/var/lib/mysql"
@@ -96,7 +96,7 @@ function build_service_liferay {
 		echo "virtualHostname=\"spinner-test.com\""
 	) >> "liferay_mount/files/osgi/configs/com.liferay.portal.instances.internal.configuration.PortalInstancesConfiguration~spinner-test.com.config"
 
-	for index in {1..2}
+	for index in $(seq 1 ${NUMBER_OF_LIFERAY_NODES})
 	do
 		local port_last_digit=$((index - 1))
 
@@ -130,14 +130,15 @@ function build_service_liferay {
 		write "            - LIFERAY_SETUP_PERIOD_DATABASE_PERIOD_JAR_PERIOD_URL_OPENBRACKET_COM_PERIOD_MYSQL_PERIOD_CJ_PERIOD_JDBC_PERIOD__UPPERCASED_RIVER_CLOSEBRACKET_=https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/2.7.4/mariadb-java-client-2.7.4.jar"
 		write "            - LIFERAY_UPGRADE_ENABLED=false"
 		write "            - LIFERAY_USERS_PERIOD_REMINDER_PERIOD_QUERIES_PERIOD_ENABLED=false"
+		write "            - LIFERAY_VIRTUAL_PERIOD_HOSTS_PERIOD_VALID_PERIOD_HOSTS=*"
 		write "            - LIFERAY_WEB_PERIOD_SERVER_PERIOD_PROTOCOL=http"
 		write "            - LIFERAY_WORKSPACE_ENVIRONMENT=${LXC_ENVIRONMENT}"
 		write "            - LOCAL_STACK=true"
 		write "            - ORCA_LIFERAY_SEARCH_ADDRESSES=search:9200"
 		write "        hostname: liferay-${index}"
 		write "        ports:"
-		write "            - 127.0.0.1:1800${port_last_digit}:8000"
-		write "            - 127.0.0.1:1808${port_last_digit}:8080"
+		write "            - ${CONTAINER_PORT_IP}1800${port_last_digit}:8000"
+		write "            - ${CONTAINER_PORT_IP}1808${port_last_digit}:8080"
 		write "        volumes:"
 		write "            - liferay-document-library:/opt/liferay/data"
 		write "            - ./liferay_mount:/mnt/liferay"
@@ -262,7 +263,7 @@ function build_service_web_server {
 	write_deploy_section 1G
 
 	write "        ports:"
-	write "            - 127.0.0.1:80:80"
+	write "            - ${CONTAINER_PORT_IP}${WEB_SERVER_PORT}:80"
 	write "        volumes:"
 	write "            - ./web-server_mount:/lcp-container"
 }
@@ -286,9 +287,13 @@ function build_services {
 function check_usage {
 	lc_check_utils docker
 
+	ANTIVIRUS_PORT=3310
+	CONTAINER_PORT_IP=127.0.0.1:
 	DATABASE_IMPORT=
 	DATABASE_PORT=13306
 	LXC_ENVIRONMENT=
+	NUMBER_OF_LIFERAY_NODES=2
+	WEB_SERVER_PORT=80
 
 	while [ "${1}" != "" ]
 	do
@@ -303,8 +308,18 @@ function check_usage {
 				print_help
 
 				;;
+			-l)
+				CONTAINER_PORT_IP=""
+
+				;;
 			-m)
 				MOD_SECURITY_ENABLED=true
+
+				;;
+			-n)
+				shift
+
+				NUMBER_OF_LIFERAY_NODES=${1}
 
 				;;
 			-o)
@@ -314,9 +329,13 @@ function check_usage {
 
 				;;
 			-r)
+				ANTIVIRUS_PORT=$((RANDOM % 100 + 3300))
 				DATABASE_PORT=$((RANDOM % 100 + 13300))
+				WEB_SERVER_PORT=$((RANDOM % 100 + 80))
 
+				echo "Antivirus port: ${ANTIVIRUS_PORT}"
 				echo "Database port: ${DATABASE_PORT}"
+				echo "Web server port: ${WEB_SERVER_PORT}"
 
 				;;
 			-s)
@@ -466,9 +485,11 @@ function print_help {
 	echo "The script can be configured with the following arguments:"
 	echo ""
 	echo "    -d (optional): Set the database import file (raw or with a .gz suffix). Virtual hosts will be suffixed with .local (e.g. abc.liferay.com becomes abc.liferay.com.local)."
-	echo "    -m (optional): Enable mod_security on the web server with the rules from OWASP Top 10."
+	echo "    -l (optional): Exported ports listen on all network interfaces"
+	echo "    -m (optional): Enable mod_security on the web server with the rules from OWASP Top 10"
+	echo "    -n (optional): Number of Liferay nodes"
 	echo "    -o (optional): Set directory name where the stack configuration will be created. It will be prefixed with \"env-\"."
-	echo "    -r (optional): Randomize the MySQL port opened on localhost to enable multiple database servers at the same time"
+	echo "    -r (optional): Randomize the antivirus, MySQL, and web server ports opened on localhost to enable multiple servers at the same time"
 	echo "    -s (optional): Skip the specified table name in the database import"
 	echo ""
 	echo "The default LXC environment is \"x1e4prd\"."
