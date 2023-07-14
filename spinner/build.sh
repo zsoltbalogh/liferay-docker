@@ -186,7 +186,6 @@ function build_service_web_server {
 	mkdir -p build/web-server/resources/usr/local/bin
 
 	cp "${web_server_dir}"/configs/common/validate-modsecurity-conf.sh build/web-server/resources/usr/local/bin
-	cp "${web_server_dir}"/configs/common/20-reload-nginx.sh build/web-server/resources/usr/local/bin
 
 	docker cp "${web_server_container}":/usr/local/etc/haproxy/haproxy.cfg build/web-server/resources/usr/local/etc/haproxy/haproxy.cfg
 
@@ -219,6 +218,7 @@ function build_service_web_server {
 	#
 
 	mkdir -p web-server_mount/configs
+	chmod +x "${web_server_dir}"/configs/common/20-reload-nginx.sh
 
 	cp -a "${web_server_dir}"/configs/* web-server_mount/configs
 
@@ -247,7 +247,10 @@ function build_service_web_server {
 		echo "COPY resources/usr/local /usr/local"
 		echo ""
 		echo "RUN chmod +x /usr/local/bin/validate-modsecurity-conf.sh"
-		echo "RUN chmod +x /usr/local/bin/20-reload-nginx.sh"
+		echo ""
+		echo "RUN apt update"
+		echo "RUN apt install -y git"
+		echo ""
 		echo "ENV ERROR_LOG_LEVEL=warn"
 		echo "ENV LCP_PROJECT_ENVIRONMENT=local"
 		echo "ENV LCP_WEBSERVER_GLOBAL_TIMEOUT=1h"
