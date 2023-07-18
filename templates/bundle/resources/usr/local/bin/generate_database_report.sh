@@ -10,37 +10,44 @@ function check_usage {
 	QUERY_FILE=$(mktemp)
 
 	TOC_FILE=$(mktemp)
-
-	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
 }
 
 function main {
 	check_usage
 
-	echo "<h1>Table of contents</h1>" >> "${TOC_FILE}"
+	DB_SCHEMAS=$(mysql -sN -h "database--route" -D "$LCP_SECRET_DATABASE_NAME" -u "$LCP_SECRET_DATABASE_USER" -p"$LCP_SECRET_DATABASE_PASSWORD" -e "show databases;" | egrep "lportal|lpartition")
 
-	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
+	for LCP_SECRET_DATABASE_NAME in $DB_SCHEMAS
+	do
+		echo "<h1>Table of contents</h1>" >> "${TOC_FILE}"
 
-	lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCK_WAITS;"
+		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
 
-	lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCKS WHERE LOCK_TRX_ID IN (SELECT BLOCKING_TRX_ID FROM INNODB_LOCK_WAITS);"
+		lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCK_WAITS;"
 
-	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM VirtualHost;"
+		lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCKS WHERE LOCK_TRX_ID IN (SELECT BLOCKING_TRX_ID FROM INNODB_LOCK_WAITS);"
 
-	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT TABLE_NAME, TABLE_ROWS from information_schema.TABLES;"
+		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM VirtualHost;"
 
-	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM DDMTemplate;"
+		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT TABLE_NAME, TABLE_ROWS from information_schema.TABLES;"
 
-	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM FragmentEntryLink;"
+		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM DDMTemplate;"
 
-	lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM QUARTZ_TRIGGERS;"
+		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM FragmentEntryLink;"
 
-	sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
-	sed -e "s#</TD>#</PRE></TD>#g" -i "${QUERY_FILE}"
+		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM QUARTZ_TRIGGERS;"
 
-	cat "${TOC_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
+		sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
+		sed -e "s#</TD>#</PRE></TD>#g" -i "${QUERY_FILE}"
 
-	rm "${TOC_FILE}" "${QUERY_FILE}"
+		REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/${LCP_SECRET_DATABASE_NAME}_database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
+
+		cat "${TOC_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
+
+		rm "${TOC_FILE}" "${QUERY_FILE}"
+
+      	ANCHOR_ID=0
+	done
 }
 
 function run_query {
