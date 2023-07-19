@@ -15,17 +15,15 @@ function check_usage {
 function main {
 	check_usage
 
-	DB_SCHEMAS=$(mysql -sN -h "database--route" -D "$LCP_SECRET_DATABASE_NAME" -u "$LCP_SECRET_DATABASE_USER" -p"$LCP_SECRET_DATABASE_PASSWORD" -e "show databases;" | egrep "lportal|lpartition")
+	echo "<h1>Table of contents</h1>" >> "${TOC_FILE}"
 
-	for LCP_SECRET_DATABASE_NAME in $DB_SCHEMAS
+	lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCK_WAITS;"
+
+	lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCKS WHERE LOCK_TRX_ID IN (SELECT BLOCKING_TRX_ID FROM INNODB_LOCK_WAITS);"
+
+	for LCP_SECRET_DATABASE_NAME in $(mysql -sN -h "database--route" -D "${LCP_SECRET_DATABASE_NAME}" -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" -e "show databases;" | grep -E "lportal|lpartition")
 	do
-		echo "<h1>Table of contents</h1>" >> "${TOC_FILE}"
-
 		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
-
-		lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCK_WAITS;"
-
-		lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCKS WHERE LOCK_TRX_ID IN (SELECT BLOCKING_TRX_ID FROM INNODB_LOCK_WAITS);"
 
 		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM VirtualHost;"
 
@@ -36,26 +34,24 @@ function main {
 		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM FragmentEntryLink;"
 
 		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM QUARTZ_TRIGGERS;"
-
-		sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
-		sed -e "s#</TD>#</PRE></TD>#g" -i "${QUERY_FILE}"
-
-		REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/${LCP_SECRET_DATABASE_NAME}_database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
-
-		cat "${TOC_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
-
-		rm "${TOC_FILE}" "${QUERY_FILE}"
-
-      	ANCHOR_ID=0
 	done
+
+	sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
+	sed -e "s#</TD>#</PRE></TD>#g" -i "${QUERY_FILE}"
+
+	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
+
+	cat "${TOC_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
+
+	rm "${TOC_FILE}" "${QUERY_FILE}"
 }
 
 function run_query {
 	ANCHOR_ID=$((ANCHOR_ID+1))
 
-	echo "<a href=\"#${ANCHOR_ID}\">${ANCHOR_ID}. ${2}</a><br />" >> "${TOC_FILE}"
+	echo "<a href=\"#${ANCHOR_ID}\">${ANCHOR_ID}. ${1}: ${2}</a><br />" >> "${TOC_FILE}"
 
-	echo "<h1 id=\"${ANCHOR_ID}\">${2}</h1>" >> "${QUERY_FILE}"
+	echo "<h1 id=\"${ANCHOR_ID}\">${1}: ${2}</h1>" >> "${QUERY_FILE}"
 
 	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" >> "${QUERY_FILE}"
 }
