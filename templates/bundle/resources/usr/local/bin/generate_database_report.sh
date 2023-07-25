@@ -21,7 +21,7 @@ function main {
 
 	lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCKS WHERE LOCK_TRX_ID IN (SELECT BLOCKING_TRX_ID FROM INNODB_LOCK_WAITS);"
 
-	for LCP_SECRET_DATABASE_NAME in $(mysql -sN -h "database--route" -D "${LCP_SECRET_DATABASE_NAME}" -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" -e "show databases;" | grep -E "lportal|lpartition")
+	for LCP_SECRET_DATABASE_NAME in $(mysql --connect-timeout=10 -D "${LCP_SECRET_DATABASE_NAME}" -e "show databases;" -h "database--route" -N -p"${LCP_SECRET_DATABASE_PASSWORD}" -s -u "${LCP_SECRET_DATABASE_USER}" | grep -E "lportal|lpartition")
 	do
 		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
 
@@ -53,7 +53,7 @@ function run_query {
 
 	echo "<h1 id=\"${ANCHOR_ID}\">${1}: ${2}</h1>" >> "${QUERY_FILE}"
 
-	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -u "${LCP_SECRET_DATABASE_USER}" -p"${LCP_SECRET_DATABASE_PASSWORD}" >> "${QUERY_FILE}"
+	mysql --connect-timeout=10 -D "${1}" -e "${2}" -H -p"${LCP_SECRET_DATABASE_PASSWORD}" -u "${LCP_SECRET_DATABASE_USER}" >> "${QUERY_FILE}"
 }
 
 main "${@}"
