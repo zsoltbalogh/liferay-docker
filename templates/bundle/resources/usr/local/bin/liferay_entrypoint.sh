@@ -40,6 +40,8 @@ function main {
 
 	start_monitor_liferay_lifecycle
 
+	generate_thread_dump
+
 	update_container_status pre-configure-scripts
 
 	execute_scripts /usr/local/liferay/scripts/pre-configure
@@ -81,6 +83,10 @@ function start_monitor_liferay_lifecycle {
 	then
 		/usr/local/bin/monitor_liferay_lifecycle.sh &
 	fi
+}
+
+function generate_thread_dump {
+	/usr/local/bin/generate_thread_dump.sh &
 }
 
 main

@@ -2,7 +2,6 @@
 
 function check_usage {
 	NUMBER_OF_THREAD_DUMPS=20
-	SLEEP=5
 	THREAD_DUMPS_DIR="${LIFERAY_HOME}/data/sre/thread_dumps"
 
 	while [ "${1}" != "" ]
@@ -27,7 +26,7 @@ function check_usage {
 			-s)
 				shift
 
-				SLEEP=${1}
+				LIFERAY_DOCKER_THREAD_DUMP_INTERVAL=${1}
 
 				;;
 			*)
@@ -48,22 +47,48 @@ function generate_thread_dump {
 	local id=${1}
 	local time=$(date +'%H-%M-%S')
 
-	echo "[Liferay] Generating ${THREAD_DUMPS_DIR}/${date}/thread_dump-${time}-${id}.txt"
+	echo "[Liferay] Generating ${THREAD_DUMPS_DIR}/${date}/thread_dump-${HOSTNAME}-${time}-${id}.txt.gz"
 
 	local thread_dump=$(jattach $(cat "${LIFERAY_PID}") threaddump)
 
-	echo -e "${thread_dump}" > "${THREAD_DUMPS_DIR}/${date}/thread_dump-${time}-${id}.txt"
+	THREAD_DUMP="${THREAD_DUMPS_DIR}/${date}/thread_dump-${HOSTNAME}-${time}-${id}.txt"
+
+	echo -e "${thread_dump}" > "${THREAD_DUMP}"
+
+	gzip "${THREAD_DUMP}"
 }
 
 function main {
 	check_usage "${@}"
 
-	for i in $(seq 1 "${NUMBER_OF_THREAD_DUMPS}")
-	do
-		generate_thread_dump "${i}"
+	if [[ "${LIFERAY_CONTAINER_STATUS_ENABLED}" != "true" ]]
+	then
+		echo "Set the environment variable \"LIFERAY_CONTAINER_STATUS_ENABLED\" to \"true\" to run ${0}."
+		
+		exit 2
+	else
+		while grep -q "live" /opt/liferay/container_status && [ "$LIFERAY_DOCKER_THREAD_DUMP_INTERVAL" -eq 0 ]
+		do
+			generate_thread_dump 1
+			sleep 5
+		done
 
-		sleep "${SLEEP}"
-	done
+		while grep -q "live" /opt/liferay/container_status && [ "$LIFERAY_DOCKER_THREAD_DUMP_INTERVAL" -ne 0 ]
+		do
+			for i in $(seq 1 "${NUMBER_OF_THREAD_DUMPS}")
+			do
+				generate_thread_dump "${i}"
+				sleep "${LIFERAY_DOCKER_THREAD_DUMP_INTERVAL}"
+			done
+			LIFERAY_DOCKER_THREAD_DUMP_INTERVAL=0
+		done
+	
+		while ! grep -q "live" /opt/liferay/container_status && [ "$LIFERAY_DOCKER_THREAD_DUMP_INTERVAL" -ne 0 ]
+		do
+			generate_thread_dump 1
+			sleep 5
+		done
+	fi
 
 	echo "[Liferay] Generated thread dumps"
 }
@@ -77,7 +102,7 @@ function print_help {
 	echo "	-n (optional): Number of thread dumps to generate"
 	echo "	-s (optional): Sleep in seconds between two thread dumps"
 	echo ""
-	echo "Example: ${0} -d \"${THREAD_DUMPS_DIR}\" -n ${NUMBER_OF_THREAD_DUMPS} -s ${SLEEP}"
+	echo "Example: ${0} -d \"${THREAD_DUMPS_DIR}\" -n ${NUMBER_OF_THREAD_DUMPS} -s ${LIFERAY_DOCKER_THREAD_DUMP_INTERVAL}"
 
 	exit 2
 }
