@@ -23,17 +23,17 @@ function main {
 
 	lc_time_run run_query INFORMATION_SCHEMA "SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_ROWS FROM TABLES ORDER BY TABLE_SCHEMA, TABLE_NAME"
 
-	for LCP_SECRET_DATABASE_NAME in $(mysql --connect-timeout=10 -D "${LCP_SECRET_DATABASE_NAME}" -e "SHOW DATABASES" -h "database--route" -N -p"${LCP_SECRET_DATABASE_PASSWORD}" -s -u "${LCP_SECRET_DATABASE_USER}" | grep -E "lportal|lpartition")
+	for database in $(mysql --connect-timeout=10 -e "SHOW DATABASES" -h "database--route" -N -p"${LCP_SECRET_DATABASE_PASSWORD}" -s -u "${LCP_SECRET_DATABASE_USER}" | grep -E "lportal|lpartition")
 	do
-		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS"
+		lc_time_run run_query "${database}" "SHOW ENGINE INNODB STATUS"
 
-		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM VirtualHost"
+		lc_time_run run_query "${database}" "SELECT * FROM VirtualHost"
 
-		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM DDMTemplate"
+		lc_time_run run_query "${database}" "SELECT * FROM DDMTemplate"
 
-		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM FragmentEntryLink"
+		lc_time_run run_query "${database}" "SELECT * FROM FragmentEntryLink"
 
-		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SELECT * FROM QUARTZ_TRIGGERS"
+		lc_time_run run_query "${database}" "SELECT * FROM QUARTZ_TRIGGERS"
 	done
 
 	sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
