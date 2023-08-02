@@ -43,7 +43,7 @@ function main {
 
 	cat "${TOC_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
 
-	rm "${TOC_FILE}" "${QUERY_FILE}"
+	rm -f "${QUERY_FILE}" "${TOC_FILE}"
 }
 
 function run_query {
