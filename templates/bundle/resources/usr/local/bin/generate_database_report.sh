@@ -21,7 +21,7 @@ function main {
 
 	lc_time_run run_query INFORMATION_SCHEMA "SELECT * FROM INNODB_LOCKS WHERE LOCK_TRX_ID IN (SELECT BLOCKING_TRX_ID FROM INNODB_LOCK_WAITS);"
 
-	for LCP_SECRET_DATABASE_NAME in $(mysql --connect-timeout=10 -D "${LCP_SECRET_DATABASE_NAME}" -e "show databases;" -h "database--route" -N -p"${LCP_SECRET_DATABASE_PASSWORD}" -s -u "${LCP_SECRET_DATABASE_USER}" | grep -E "lportal|lpartition")
+	for LCP_SECRET_DATABASE_NAME in $(mysql --connect-timeout=10 -D "${LCP_SECRET_DATABASE_NAME}" -e "SHOW DATABASES;" -h "database--route" -N -p"${LCP_SECRET_DATABASE_PASSWORD}" -s -u "${LCP_SECRET_DATABASE_USER}" | grep -E "lportal|lpartition")
 	do
 		lc_time_run run_query "${LCP_SECRET_DATABASE_NAME}" "SHOW ENGINE INNODB STATUS;"
 
