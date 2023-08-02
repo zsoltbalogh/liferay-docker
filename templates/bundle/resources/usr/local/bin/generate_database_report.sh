@@ -39,9 +39,9 @@ function main {
 	sed -e "s#<TD>#<TD><PRE>#g" -i "${QUERY_FILE}"
 	sed -e "s#</TD>#</PRE></TD>#g" -i "${QUERY_FILE}"
 
-	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html
+	REPORTS_FILE="${LIFERAY_REPORTS_DIRECTORY}"/database_query_report_$(date +'%Y-%m-%d_%H-%M-%S').html.gz
 
-	cat "${TOC_FILE}" "${QUERY_FILE}" > "${REPORTS_FILE}"
+	cat "${TOC_FILE}" "${QUERY_FILE}" | gzip > "${REPORTS_FILE}"
 
 	rm -f "${QUERY_FILE}" "${TOC_FILE}"
 }
