@@ -48,22 +48,32 @@ function generate_thread_dump {
 	local id=${1}
 	local time=$(date +'%H-%M-%S')
 
-	echo "[Liferay] Generating ${THREAD_DUMPS_DIR}/${date}/thread_dump-${time}-${id}.txt"
+	echo "[Liferay] Generating ${THREAD_DUMPS_DIR}/${date}/thread_dump-${HOSTNAME}-${time}-${id}.txt.gz"
 
 	local thread_dump=$(jattach $(cat "${LIFERAY_PID}") threaddump)
 
-	echo -e "${thread_dump}" > "${THREAD_DUMPS_DIR}/${date}/thread_dump-${time}-${id}.txt"
+	echo -e "${thread_dump}" | gzip > "${THREAD_DUMPS_DIR}/${date}/thread_dump-${HOSTNAME}-${time}-${id}.txt.gz"
 }
 
 function main {
 	check_usage "${@}"
 
-	for i in $(seq 1 "${NUMBER_OF_THREAD_DUMPS}")
-	do
-		generate_thread_dump "${i}"
+	if [ "${LIFERAY_DOCKER_THREAD_DUMP_INTERVAL}" != 0 ]
+	then
+		for i in $(seq 1 "${NUMBER_OF_THREAD_DUMPS}")
+		do
+			generate_thread_dump "${i}"
 
-		sleep "${SLEEP}"
-	done
+			sleep "${LIFERAY_DOCKER_THREAD_DUMP_INTERVAL}"
+		done
+	else
+		while [ "${LIFERAY_DOCKER_THREAD_DUMP_INTERVAL}" == 0 ]
+		do
+			generate_thread_dump 1
+
+			sleep "${SLEEP}"
+		done
+	fi
 
 	echo "[Liferay] Generated thread dumps"
 }
