@@ -30,7 +30,7 @@ function clean_up_test_directory {
 function generate_logs {
 	if [ "${TEST_RESULT}" -gt 0 ]
 	then
-        mkdir -p "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}"
+		mkdir -p "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}"
 		docker logs "${CONTAINER_ID}" > "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}/test.log" 2>&1
 	fi
 }
@@ -47,8 +47,8 @@ function log_test_failure {
 }
 
 function log_test_success {
-    TEST_RESULT=0
-	
+	TEST_RESULT=0
+
 	if [ -n "${1}" ]
 	then
 		echo "[${1}] SUCCESS"
@@ -78,13 +78,13 @@ function main {
 }
 
 function prepare_mount {
-    local timestamp=$(date "$(date)" "+%Y%m%d%H%M")
+	local timestamp=$(date "$(date)" "+%Y%m%d%H%M")
 
 	TEST_DIR="${PWD}/temp-test-${timestamp}"
 
 	mkdir -p "${TEST_DIR}"
 
-    echo "<html>HELLO</html>" > "${TEST_DIR}/index.html"
+	echo "<html>HELLO</html>" > "${TEST_DIR}/index.html"
 }
 
 function start_container {
