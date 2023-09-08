@@ -107,7 +107,7 @@ function test_page {
 
 	if [ ${exit_code} -gt 0 ]
 	then
-		log_test_failure "${FUNCNAME[1]}"
+		log_test_failure
 
 		echo "${content}"
 		echo ""
@@ -115,9 +115,9 @@ function test_page {
 	else
 		if [[ "${content}" =~ .*"${2}".* ]]
 		then
-			log_test_success "${FUNCNAME[1]}"
+			log_test_success
 		else
-			log_test_failure "${FUNCNAME[1]}"
+			log_test_failure
 
 			echo "${content}"
 			echo ""
