@@ -109,7 +109,7 @@ function download {
 
 	mkdir -p $(dirname "${file_name}")
 
-	curl $(echo "${LIFERAY_DOCKER_CURL_OPTIONS}") --fail --location --output "${file_name}" "${file_url}" --show-error --silent|| exit 2
+	curl $(echo "${LIFERAY_DOCKER_CURL_OPTIONS}") --fail --location --output "${file_name}" --show-error --silent "${file_url}" || exit 2
 }
 
 function get_current_arch {
