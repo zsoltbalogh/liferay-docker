@@ -24,7 +24,8 @@ function generate_logs {
 	if [ "${TEST_RESULT}" -gt 0 ]
 	then
 		mkdir -p "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}"
-		docker logs "${CONTAINER_ID}" > "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}/test.log" 2>&1
+
+		docker logs "${CONTAINER_ID}" > "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}/caddy_test.log" 2>&1
 	fi
 }
 
