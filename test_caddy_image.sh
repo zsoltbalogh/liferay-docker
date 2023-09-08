@@ -20,40 +20,11 @@ function check_usage {
 	check_utils curl docker
 }
 
-function clean_up_test_directory {
-	if [ "${TEST_RESULT}" -eq 0 ]
-	then
-		rm -fr "${TEST_DIR}"
-	fi
-}
-
 function generate_logs {
 	if [ "${TEST_RESULT}" -gt 0 ]
 	then
 		mkdir -p "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}"
 		docker logs "${CONTAINER_ID}" > "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}/test.log" 2>&1
-	fi
-}
-
-function log_test_failure {
-	TEST_RESULT=1
-
-	if [ -n "${1}" ]
-	then
-		echo "[${1}] FAILED"
-	else
-		echo "[${FUNCNAME[1]}] FAILED"
-	fi
-}
-
-function log_test_success {
-	TEST_RESULT=0
-
-	if [ -n "${1}" ]
-	then
-		echo "[${1}] SUCCESS"
-	else
-		echo "[${FUNCNAME[1]}] SUCCESS"
 	fi
 }
 
@@ -91,13 +62,6 @@ function start_container {
 	echo "Starting container from image ${LIFERAY_DOCKER_IMAGE_ID}."
 
 	CONTAINER_ID=$(docker run -d -p 8080:80 -v "${TEST_DIR}:/public_html" "${LIFERAY_DOCKER_IMAGE_ID}")
-}
-
-function stop_container {
-	echo "Stopping container."
-
-	docker kill "${CONTAINER_ID}" > /dev/null
-	docker rm "${CONTAINER_ID}" > /dev/null
 }
 
 function test_docker_image_files {

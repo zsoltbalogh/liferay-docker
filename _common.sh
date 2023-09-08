@@ -32,6 +32,13 @@ function clean_up_temp_directory {
 	rm -fr "${TEMP_DIR}"
 }
 
+function clean_up_test_directory {
+	if [ "${TEST_RESULT}" -eq 0 ]
+	then
+		rm -fr "${TEST_DIR}"
+	fi
+}
+
 function configure_tomcat {
 	printf "\nCATALINA_OPTS=\"\${CATALINA_OPTS} \${LIFERAY_JVM_OPTS}\"" >> "${TEMP_DIR}/liferay/tomcat/bin/setenv.sh"
 }
@@ -175,6 +182,26 @@ function log_in_to_docker_hub {
 	fi
 }
 
+function log_test_failure {
+	TEST_RESULT=1
+
+	if [ -n "${1}" ]
+	then
+		echo "[${1}] FAILED"
+	else
+		echo "[${FUNCNAME[1]}] FAILED"
+	fi
+}
+
+function log_test_success {
+	if [ -n "${1}" ]
+	then
+		echo "[${1}] SUCCESS"
+	else
+		echo "[${FUNCNAME[1]}] SUCCESS"
+	fi
+}
+
 function make_temp_directory {
 	CURRENT_DATE=$(date)
 
@@ -285,6 +312,14 @@ function stat {
 		/usr/bin/stat --printf="%s" "${1}"
 	fi
 }
+
+function stop_container {
+	echo "Stopping container."
+
+	docker kill "${CONTAINER_ID}" > /dev/null
+	docker rm "${CONTAINER_ID}" > /dev/null
+}
+
 
 function test_docker_image {
 	export LIFERAY_DOCKER_IMAGE_ID="${DOCKER_IMAGE_TAGS[0]}"

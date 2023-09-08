@@ -24,39 +24,12 @@ function check_usage {
 	check_utils curl docker
 }
 
-function clean_up_test_directory {
-	if [ "${TEST_RESULT}" -eq 0 ]
-	then
-		rm -fr "${TEST_DIR}"
-	fi
-}
-
 function generate_thread_dump {
 	if [ "${TEST_RESULT}" -gt 0 ]
 	then
 		docker exec -it "${CONTAINER_ID}" /usr/local/bin/generate_thread_dump.sh
 
 		docker cp "${CONTAINER_ID}":/opt/liferay/data/sre/thread_dumps "${PWD}/${LIFERAY_DOCKER_LOGS_DIR}"
-	fi
-}
-
-function log_test_failure {
-	TEST_RESULT=1
-
-	if [ -n "${1}" ]
-	then
-		echo "[${1}] FAILED"
-	else
-		echo "[${FUNCNAME[1]}] FAILED"
-	fi
-}
-
-function log_test_success {
-	if [ -n "${1}" ]
-	then
-		echo "[${1}] SUCCESS"
-	else
-		echo "[${FUNCNAME[1]}] SUCCESS"
 	fi
 }
 
@@ -158,13 +131,6 @@ function start_container {
 	fi
 
 	TEST_RESULT=0
-}
-
-function stop_container {
-	echo "Stopping container."
-
-	docker kill "${CONTAINER_ID}" > /dev/null
-	docker rm "${CONTAINER_ID}" > /dev/null
 }
 
 function test_docker_image_files {
