@@ -46,6 +46,24 @@ function main {
 	build_docker_image "${1}"
 
 	clean_up_temp_directory
+
+	test_caddy_image
+}
+
+function test_caddy_image {
+	export LIFERAY_DOCKER_IMAGE_ID="${DOCKER_IMAGE_TAGS[0]}"
+
+	if [[ ! " ${@} " =~ " --no-test-image " ]]
+	then
+		./test_caddy_image.sh
+
+		if [ $? -gt 0 ]
+		then
+			echo "Testing failed, exiting."
+
+			exit 2
+		fi
+	fi
 }
 
 main "${@}"
