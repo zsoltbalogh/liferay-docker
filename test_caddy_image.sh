@@ -63,6 +63,8 @@ function start_container {
 	echo "Starting container from image ${LIFERAY_DOCKER_IMAGE_ID}."
 
 	CONTAINER_ID=$(docker run -d -p 8080:80 -v "${TEST_DIR}:/public_html" "${LIFERAY_DOCKER_IMAGE_ID}")
+
+	TEST_RESULT=0
 }
 
 function test_docker_image_files {
