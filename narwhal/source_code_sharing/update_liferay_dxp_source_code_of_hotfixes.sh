@@ -78,41 +78,41 @@ function check_usage {
 	while [ "$#" -gt "0" ]
 	do
 		case "${1}" in
-			-d|--debug)
+			--debug)
 				LIFERAY_COMMON_LOG_LEVEL="DEBUG"
 				LIFERAY_COMMON_DEBUG_ENABLED="true"
 
 				;;
 
-			-i|--ignore-zip-files)
+			--ignore-zip-files)
 				IGNORE_ZIP_FILES="${2}"
 
 				shift 1
 
 				;;
 
-			-l|--logdir)
+			--logdir)
 				LIFERAY_COMMON_LOG_DIR="${2}"
 
 				shift 1
 
 				;;
 
-			-r|--zip-list-retention-time)
+			--zip-list-retention-time)
 				ZIP_LIST_RETENTION_TIME="${2}"
 
 				shift 1
 
 				;;
 
-			-s|--storage-location)
+			--storage-location)
 				STORAGE_LOCATION="${2}"
 
 				shift 1
 
 				;;
 
-			-v|--version)
+			--version)
 				VERSION_INPUT="${2}"
 
 				shift 1

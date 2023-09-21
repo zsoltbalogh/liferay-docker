@@ -34,19 +34,19 @@ function check_usage {
 	while [ "$#" -gt "0" ]
 	do
 		case "${1}" in
-			-d|--debug)
+			--debug)
 				LIFERAY_COMMON_LOG_LEVEL="DEBUG"
 
 				;;
 
-			-l|--logdir)
+			--logdir)
 				LIFERAY_COMMON_LOG_DIR="${2}"
 
 				shift 1
 
 				;;
 
-			-v|--version)
+			--version)
 				VERSION_INPUT="${2}"
 
 				shift 1
