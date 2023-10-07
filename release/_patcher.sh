@@ -41,7 +41,6 @@ function report_patcher_status {
 		else
 			echo "    \"exitValue\": 0,"
 			echo "    \"fileName\": \"${_HOTFIX_FILE_NAME}\","
-			echo "    \"sourceName\": \"${_HOTFIX_FILE_NAME}\","
 		fi
 
 		echo "    \"patcherRequestKey\": \"${LIFERAY_RELEASE_PATCHER_REQUEST_KEY}\","
