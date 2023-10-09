@@ -27,6 +27,35 @@ function build_doc {
 	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
 
 	ant doc
+
+	lc_cd modules
+
+	for build_gradle in $(find apps core dxp/apps -name build.gradle)
+	do
+		lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee/modules
+
+		app=$(dirname "${build_gradle}")
+
+		if [ -e "${app}"/.lfrbuild-portal ] && [ ! -e "${app}"/.lfrbuild-releng-ignore ]
+		then
+			lc_cd "${app}"
+
+			"${_PROJECTS_DIR}"/liferay-portal-ee/gradlew javadoc
+			"${_PROJECTS_DIR}"/liferay-portal-ee/gradlew tlddoc
+
+			if [ -e build/docs/javadoc ]
+			then
+				mkdir -p "${_PROJECTS_DIR}/liferay-portal-ee/api/javadoc/modules/${app}"
+				cp -a build/docs/javadoc/* "${_PROJECTS_DIR}/liferay-portal-ee/api/javadoc/modules/${app}"
+			fi
+
+			if [ -e build/docs/tlddoc ]
+			then
+				mkdir -p "${_PROJECTS_DIR}/liferay-portal-ee/api/taglibs/modules/${app}"
+				cp -a build/docs/tlddoc/* "${_PROJECTS_DIR}/liferay-portal-ee/api/taglibs/modules/${app}"
+			fi
+		fi
+	done
 }
 
 function build_dxp {
