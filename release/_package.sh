@@ -90,6 +90,12 @@ function package_release {
 
 	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
 
+	cp -a api liferay-dxp-doc
+
+	zip -qr "${_BUILD_DIR}/release/liferay-dxp-doc-${_DXP_VERSION}-${_BUILD_TIMESTAMP}.zip" liferay-dxp-doc
+
+	rm -fr liferay-dxp-doc
+
 	cp -a sql liferay-dxp-sql
 
 	zip -qr "${_BUILD_DIR}/release/liferay-dxp-sql-${_DXP_VERSION}-${_BUILD_TIMESTAMP}.zip" liferay-dxp-sql -i "*.sql"

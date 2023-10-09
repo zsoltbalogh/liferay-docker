@@ -21,6 +21,14 @@ function add_licensing {
 		-f build-release-license.xml
 }
 
+function build_doc {
+	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
+
+	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
+
+	ant doc
+}
+
 function build_dxp {
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 

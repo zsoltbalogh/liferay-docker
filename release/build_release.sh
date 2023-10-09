@@ -82,6 +82,8 @@ function main {
 
 		lc_time_run build_dxp
 
+		lc_time_run build_doc
+
 		lc_background_run build_sql
 		lc_background_run copy_copyright
 		lc_background_run deploy_elasticsearch_sidecar
