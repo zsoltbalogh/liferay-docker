@@ -36,7 +36,7 @@ function build_doc {
 
 		app=$(dirname "${build_gradle}")
 
-		if [ -e "${app}"/.lfrbuild-portal ] && [ ! -e "${app}"/.lfrbuild-releng-ignore ]
+		if [ -e "${app}"/.lfrbuild-portal ] && [ ! -e "${app}"/.lfrbuild-releng-ignore ] && [ ! -e "${app}"/liferay-theme.json ]
 		then
 			lc_cd "${app}"
 
