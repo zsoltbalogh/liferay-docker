@@ -163,6 +163,11 @@ function start_container {
 function stop_container {
 	echo "Stopping container."
 
+	if [ "${TEST_RESULT}" -gt 0 ]
+	then
+		docker logs "${CONTAINER_ID}"
+	fi
+
 	docker kill "${CONTAINER_ID}" > /dev/null
 	docker rm "${CONTAINER_ID}" > /dev/null
 }
