@@ -261,7 +261,7 @@ function test_health_status {
 function test_page {
 	local content
 
-	content=$(curl --connect-to ":8080:${CONTAINER_HOSTNAME}:8080" --fail --max-time 60 -s --show-error -L "http://localhost:${CONTAINER_HTTP_PORT}${1}")
+	content=$(curl --fail --header "Host: localhost" --max-time 60 -s --show-error -L "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}${1}")
 
 	local exit_code=$?
 
