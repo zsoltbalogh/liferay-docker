@@ -173,7 +173,7 @@ function stop_container {
 }
 
 function test_docker_image_files {
-	test_page "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}/test_docker_image_files.jsp" "TEST"
+	test_page "/test_docker_image_files.jsp" "TEST"
 }
 
 function test_docker_image_fix_pack_installed {
@@ -200,7 +200,7 @@ function test_docker_image_fix_pack_installed {
 function test_docker_image_hotfix_installed {
 	if [ -n "${LIFERAY_DOCKER_TEST_HOTFIX_URL}" ]
 	then
-		test_page "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}/" "Hotfix installation on the Docker image was successful."
+		test_page "/" "Hotfix installation on the Docker image was successful."
 	fi
 }
 
@@ -221,11 +221,11 @@ function test_docker_image_patching_tool_updated {
 }
 
 function test_docker_image_scripts_1 {
-	test_page "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}/test_docker_image_scripts_1.jsp" "TEST1"
+	test_page "/test_docker_image_scripts_1.jsp" "TEST1"
 }
 
 function test_docker_image_scripts_2 {
-	test_page "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}/test_docker_image_scripts_2.jsp" "TEST2"
+	test_page "/test_docker_image_scripts_2.jsp" "TEST2"
 }
 
 function test_health_status {
@@ -261,7 +261,7 @@ function test_health_status {
 function test_page {
 	local content
 
-	content=$(curl --fail --max-time 60 -s --show-error -L "${1}")
+	content=$(curl --connect-to ":8080:${CONTAINER_HOSTNAME}:8080" --fail --max-time 60 -s --show-error -L "http://localhost:${CONTAINER_HTTP_PORT}${1}")
 
 	local exit_code=$?
 
