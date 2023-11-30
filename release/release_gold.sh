@@ -6,7 +6,7 @@ RELEASE_PROPERTIES_FILE="release-data/release.properties"
 GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER:="liferay"}
 
 function add_tag_to_release {
-	if ( ! curl --data "{
+	if (! curl --data "{
 			\"message\":\"initial version\",
 			\"object\":\"$(lc_get_property ${RELEASE_PROPERTIES_FILE} git.hash.liferay-portal-ee)\",
 			\"tag\":\"${LIFERAY_RELEASE_VERSION}\",
@@ -54,18 +54,18 @@ function main {
 }
 
 function print_help {
-    echo "Usage: GITHUB_PAT=<Personal Access Token> (GITHUB_REPOSITORY_OWNER=<username>) LIFERAY_RELEASE_RC_BUILD_TIMESTAMP=<timestamp> LIFERAY_RELEASE_VERSION=<version> ${0}"
-    echo ""
-    echo "The script reads the following environment variables:"
-    echo ""
-    echo "    GITHUB_PAT: The user's Personal Access Token"
-	echo "    GITHUB_REPOSITORY_OWNER (optional): The repository owner's git username, defaults to 'liferay'"
-    echo "    LIFERAY_RELEASE_RC_BUILD_TIMESTAMP: Timestamp of the build to publish"
-    echo "    LIFERAY_RELEASE_VERSION: DXP version of the release to publish"
+	echo "Usage: GITHUB_PAT=<Personal Access Token> (GITHUB_REPOSITORY_OWNER=<username>) LIFERAY_RELEASE_RC_BUILD_TIMESTAMP=<timestamp> LIFERAY_RELEASE_VERSION=<version> ${0}"
 	echo ""
-    echo "Example: GITHUB_PAT=<personal access token> GITHUB_REPOSITORY_OWNER=<username> LIFERAY_RELEASE_RC_BUILD_TIMESTAMP=1695892964 LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
+	echo "The script reads the following environment variables:"
+	echo ""
+	echo "    GITHUB_PAT: Personal Access Token of the user"
+	echo "    GITHUB_REPOSITORY_OWNER (optional): Username of the repository owner (defaults to 'liferay')"
+	echo "    LIFERAY_RELEASE_RC_BUILD_TIMESTAMP: Timestamp of the build to publish"
+	echo "    LIFERAY_RELEASE_VERSION: DXP version of the release to publish"
+	echo ""
+	echo "Example: GITHUB_PAT=<Personal Access Token> GITHUB_REPOSITORY_OWNER=<username> LIFERAY_RELEASE_RC_BUILD_TIMESTAMP=1695892964 LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
 
-    exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
+	exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
 }
 
 main

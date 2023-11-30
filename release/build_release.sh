@@ -41,6 +41,14 @@ function check_usage {
 	LIFERAY_COMMON_LOG_DIR="${_BUILD_DIR}"
 }
 
+function create_release_properties_file {
+	(
+		echo "build.timestamp=${_BUILD_TIMESTAMP}"
+		echo "git.hash.liferay-portal-ee=${_GIT_SHA}"
+		echo "git.hash.liferay-docker=${_BUILDER_SHA}"
+	) > "${_RELEASE_ROOT_DIR}"/release.properties
+}
+
 function main {
 	export ANT_OPTS="-Xmx10G"
 
@@ -205,14 +213,6 @@ function print_variables {
 
 	echo "${environment}./build_release.sh"
 	echo ""
-}
-
-function create_release_properties_file {
-	(
-		echo "build.timestamp=${_BUILD_TIMESTAMP}"
-		echo "git.hash.liferay-portal-ee=${_GIT_SHA}"
-		echo "git.hash.liferay-docker=${_BUILDER_SHA}"
-	) > "${_RELEASE_ROOT_DIR}"/release.properties
 }
 
 main
