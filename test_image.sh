@@ -21,7 +21,7 @@ function check_usage {
 		exit 1
 	fi
 
-	check_utils curl docker
+	check_utils docker
 }
 
 function clean_up_test_directory {
@@ -140,22 +140,10 @@ function start_container {
 
 	if [ -n "${LIFERAY_DOCKER_NETWORK_NAME}" ]
 	then
-		CONTAINER_HOSTNAME=portal-container
-		CONTAINER_HTTP_PORT=8080
-
-		network_parameters="--hostname=${CONTAINER_HOSTNAME} --name=${CONTAINER_HOSTNAME} --network=${LIFERAY_DOCKER_NETWORK_NAME}"
-
 		test_dir="/data/${LIFERAY_DOCKER_NETWORK_NAME}/liferay/liferay-docker/${TEST_DIR}"
 	fi
 
-	CONTAINER_ID=$(docker run -d -p 8080 -v "${test_dir}/mnt:/mnt:rw" ${network_parameters} "${LIFERAY_DOCKER_IMAGE_ID}")
-
-	if [ ! -n "${LIFERAY_DOCKER_NETWORK_NAME}" ]
-	then
-		CONTAINER_HTTP_PORT=$(docker port "${CONTAINER_ID}" 8080/tcp)
-
-		CONTAINER_HTTP_PORT=${CONTAINER_HTTP_PORT##*:}
-	fi
+	CONTAINER_ID=$(docker run -d -v "${test_dir}/mnt:/mnt:rw" "${LIFERAY_DOCKER_IMAGE_ID}")
 
 	TEST_RESULT=0
 }
@@ -236,10 +224,10 @@ function test_health_status {
 		echo -en "."
 
 		local health_status=$(docker inspect --format="{{json .State.Health.Status}}" "${CONTAINER_ID}")
-		local ignore_license=$(docker logs ${CONTAINER_ID} 2> /dev/null | grep -c "Starting Liferay Portal")
-		local license_status=$(docker logs ${CONTAINER_ID} 2> /dev/null | grep -c "License registered for DXP Development")
+		local ignore_license=$(docker logs "${CONTAINER_ID}" 2> /dev/null | grep -c "Starting Liferay Portal")
+		local license_status=$(docker logs "${CONTAINER_ID}" 2> /dev/null | grep -c "License registered for DXP Development")
 
-		if [ "${health_status}" == "\"healthy\"" ] && ([ ${ignore_license} -gt 0 ] || [ ${license_status} -gt 0 ])
+		if [ "${health_status}" == "\"healthy\"" ] && { [ "${ignore_license}" -gt 0 ] || [ "${license_status}" -gt 0 ]; }
 		then
 			echo ""
 
@@ -261,7 +249,7 @@ function test_health_status {
 function test_page {
 	local content
 
-	content=$(curl --connect-to ":8080:${CONTAINER_HOSTNAME}:8080" --fail --max-time 60 -s --show-error -L "http://localhost:${CONTAINER_HTTP_PORT}${1}")
+	content=$(docker exec -it "${CONTAINER_ID}" curl --fail --max-time 60 -s --show-error -L "http://localhost:8080${1}")
 
 	local exit_code=$?
 
