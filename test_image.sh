@@ -126,7 +126,26 @@ function prepare_mount {
 function start_container {
 	echo "Starting container from image ${LIFERAY_DOCKER_IMAGE_ID}."
 
-	CONTAINER_ID=$(docker run -d -v "${PWD}/${TEST_DIR}/mnt:/mnt:rw" "${LIFERAY_DOCKER_IMAGE_ID}")
+	# TODO Temporary fix until IT rebuilds the CI servers
+
+	if [ ! -n "${LIFERAY_DOCKER_NETWORK_NAME}" ]
+	then
+		LIFERAY_DOCKER_NETWORK_NAME="${DOCKER_NETWORK_NAME}"
+	fi
+
+	local network_parameters
+	local test_dir="${PWD}/${TEST_DIR}"
+
+	if [ -n "${LIFERAY_DOCKER_NETWORK_NAME}" ]
+	then
+		test_dir="/data/${LIFERAY_DOCKER_NETWORK_NAME}/liferay/liferay-docker/${TEST_DIR}"
+	fi
+
+	echo "Mounting ${test_dir}."
+
+	ls -l "${test_dir}"
+
+	CONTAINER_ID=$(docker run -d -v "${test_dir}/mnt:/mnt:rw" "${LIFERAY_DOCKER_IMAGE_ID}")
 
 	TEST_RESULT=0
 }
