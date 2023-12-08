@@ -133,8 +133,6 @@ function start_container {
 		LIFERAY_DOCKER_NETWORK_NAME="${DOCKER_NETWORK_NAME}"
 	fi
 
-	CONTAINER_HOSTNAME="localhost"
-
 	local network_parameters
 	local test_dir="${PWD}/${TEST_DIR}"
 
@@ -142,6 +140,10 @@ function start_container {
 	then
 		test_dir="/data/${LIFERAY_DOCKER_NETWORK_NAME}/liferay/liferay-docker/${TEST_DIR}"
 	fi
+
+	echo "Mounting ${test_dir}."
+
+	tree "${test_dir}"
 
 	CONTAINER_ID=$(docker run -d -v "${test_dir}/mnt:/mnt:rw" "${LIFERAY_DOCKER_IMAGE_ID}")
 
