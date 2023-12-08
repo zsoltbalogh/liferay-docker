@@ -143,7 +143,7 @@ function start_container {
 
 	echo "Mounting ${test_dir}."
 
-	tree "${test_dir}"
+	ls -l "${test_dir}"
 
 	CONTAINER_ID=$(docker run -d -v "${test_dir}/mnt:/mnt:rw" "${LIFERAY_DOCKER_IMAGE_ID}")
 
