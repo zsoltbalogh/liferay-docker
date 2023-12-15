@@ -41,9 +41,9 @@ function upload_boms {
 
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
-	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
+	if [ "${LIFERAY_RELEASE_UPLOAD_BOMS}" != "true" ]
 	then
-		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
+		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD_BOMS to \"true\" to enable."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
@@ -57,9 +57,9 @@ function upload_boms {
 function upload_hotfix {
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
-	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
+	if [ "${LIFERAY_RELEASE_UPLOAD_PACKAGES}" != "true" ]
 	then
-		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
+		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD_PACKAGES to \"true\" to enable."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
@@ -88,9 +88,9 @@ function upload_hotfix {
 function upload_release {
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
-	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
+	if [ "${LIFERAY_RELEASE_UPLOAD_PACKAGES}" != "true" ]
 	then
-		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
+		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD_PACKAGES to \"true\" to enable."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
