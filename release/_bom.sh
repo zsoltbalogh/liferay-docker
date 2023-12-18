@@ -112,17 +112,11 @@ function generate_poms {
 
 	lc_cd "${_BUILD_DIR}/boms"
 
-	if [ "${LIFERAY_RELEASE_PROMOTE_SNAPSHOT}" == "true" ];
-	then
-		artifact_version="${_DXP_VERSION}"
-	else
-		artifact_version="${_DXP_VERSION}-${_BUILD_TIMESTAMP}"
-	fi
 	for pom in release.dxp.api release.dxp.bom release.dxp.bom.compile.only release.dxp.bom.third.party
 	do
 		lc_download "https://repository.liferay.com/nexus/service/local/repositories/liferay-public-releases/content/com/liferay/portal/${pom}/${base_version}/${pom}-${base_version}.pom"
 
-		sed -e "s#<version>${base_version}</version>#<version>${artifact_version}</version>#" < "${pom}-${base_version}.pom" | \
+		sed -e "s#<version>${base_version}</version>#<version>${_DXP_VERSION}-${_BUILD_TIMESTAMP}</version>#" < "${pom}-${base_version}.pom" | \
 		sed -e "s#<connection>scm:git:git@github.com:liferay/liferay-portal.git</connection>#<connection>scm:git:git@github.com:liferay/liferay-dxp.git</connection>#" | \
 		sed -e "s#<developerConnection>scm:git:git@github.com:liferay/liferay-portal.git</developerConnection>#<developerConnection>scm:git:git@github.com:liferay/liferay-dxp.git</developerConnection>#" | \
 		sed -e "s#<tag>.*</tag>#<tag>${_DXP_VERSION}</tag>#" | \

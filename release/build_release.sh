@@ -186,11 +186,9 @@ function print_help {
 	echo "    LIFERAY_RELEASE_OUTPUT (optional): Set this to \"hotfix\" to build a hotfix instead of a release"
 	echo "    LIFERAY_RELEASE_PATCHER_REQUEST_KEY (optional): Request key from Patcher that is used to report back statuses to Patcher"
 	echo "    LIFERAY_RELEASE_PATCHER_USER_ID (optional): User ID of the patcher user who started the build"
-	echo "    LIFERAY_RELEASE_PROMOTE_SNAPSHOT (optional): Set this to \"true\" to promote a snapshot build to the release repository"
-	echo "    LIFERAY_RELEASE_UPLOAD_BOMS (optional): Set this to \"true\" to upload boms"
-	echo "    LIFERAY_RELEASE_UPLOAD_PACKAGES (optional): Set this to \"true\" to upload packages"
+	echo "    LIFERAY_RELEASE_UPLOAD (optional): Set this to \"true\" to upload artifacts"
 	echo ""
-	echo "Example: LIFERAY_RELEASE_GIT_SHA=release-2023.q3 LIFERAY_RELEASE_PROMOTE_SNAPSHOT=true ${0}"
+	echo "Example: LIFERAY_RELEASE_GIT_SHA=release-2023.q3 ${0}"
 
 	exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
 }

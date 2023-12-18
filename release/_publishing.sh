@@ -22,7 +22,7 @@ function upload_bom_file {
 
 	local nexus_repository_url="https://repository.liferay.com/nexus/service/local/repositories"
 
-	if [ "${LIFERAY_RELEASE_PROMOTE_SNAPSHOT}" == "true" ]
+	if [ "${nexus_repository_name}" == "liferay" ]
 	then
 		local file_url="${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/${component_name}/${_DXP_VERSION}/${file_name}"
 	else
@@ -41,9 +41,9 @@ function upload_boms {
 
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
-	if [ "${LIFERAY_RELEASE_UPLOAD_BOMS}" != "true" ]
+	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
 	then
-		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD_BOMS to \"true\" to enable."
+		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
@@ -57,9 +57,9 @@ function upload_boms {
 function upload_hotfix {
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
-	if [ "${LIFERAY_RELEASE_UPLOAD_PACKAGES}" != "true" ]
+	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
 	then
-		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD_PACKAGES to \"true\" to enable."
+		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
@@ -88,9 +88,9 @@ function upload_hotfix {
 function upload_release {
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
-	if [ "${LIFERAY_RELEASE_UPLOAD_PACKAGES}" != "true" ]
+	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
 	then
-		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD_PACKAGES to \"true\" to enable."
+		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
