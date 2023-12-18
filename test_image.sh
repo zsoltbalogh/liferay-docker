@@ -138,7 +138,7 @@ function start_container {
 
 	if [ -n "${LIFERAY_DOCKER_NETWORK_NAME}" ]
 	then
-		test_dir="/data/${LIFERAY_DOCKER_NETWORK_NAME}/liferay/liferay-docker/${TEST_DIR}"
+		test_dir="/data/$(hostname)/liferay/liferay-docker/${TEST_DIR}"
 	fi
 
 	CONTAINER_ID=$(docker run -d -v "${test_dir}/mnt:/mnt:rw" "${LIFERAY_DOCKER_IMAGE_ID}")
