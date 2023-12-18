@@ -26,8 +26,6 @@ function upload_bom_file {
 	then
 		local file_url="${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/${component_name}/${_DXP_VERSION}/${file_name}"
 	else
-		file_name=$(echo "${file_name}" | sed -r "s/([a-z\.]+)-([0-9a-z.]+)(-[a-z.]+)?.(jar|pom)/\1-\2-${_BUILD_TIMESTAMP}\3.\4/")
-
 		local file_url="${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/${component_name}/${_DXP_VERSION}-${_BUILD_TIMESTAMP}/${file_name}"
 	fi
 
