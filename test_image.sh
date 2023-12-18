@@ -141,6 +141,8 @@ function start_container {
 		test_dir="/data/$(hostname)/liferay/liferay-docker/${TEST_DIR}"
 	fi
 
+	echo "Host path: ${test_dir}"
+
 	CONTAINER_ID=$(docker run -d -v "${test_dir}:/mnt:rw" "${LIFERAY_DOCKER_IMAGE_ID}")
 
 	TEST_RESULT=0
