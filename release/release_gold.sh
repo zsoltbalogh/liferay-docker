@@ -33,7 +33,16 @@ function copy_rc {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	ssh -i lrdcom-vm-1 root@lrdcom-vm-1 cp -a "/www/releases.liferay.com/dxp/release-candidates/${LIFERAY_RELEASE_VERSION}-${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}" "/www/releases.liferay.com/dxp/${LIFERAY_RELEASE_VERSION}"
+	local rc_dir="/www/releases.liferay.com/dxp/release-candidates/${LIFERAY_RELEASE_VERSION}-${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}"
+	local stable_dir="/www/releases.liferay.com/dxp/${LIFERAY_RELEASE_VERSION}"
+
+	ssh -i lrdcom-vm-1 root@lrdcom-vm-1 rsync -arv --exclude release.properties "${rc_dir}/" "${stable_dir}/"
+
+	scp -i lrdcom-vm-1 "root@lrdcom-vm-1:${rc_dir}/release.properties" "${_PROMOTION_DIR}/release.properties"
+
+	sed -i "s/-${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}//g" "${_PROMOTION_DIR}/release.properties"
+
+	scp -i lrdcom-vm-1 "${_PROMOTION_DIR}/release.properties" "root@lrdcom-vm-1:${stable_dir}/release.properties"
 }
 
 function main {

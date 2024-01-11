@@ -41,7 +41,7 @@ function generate_release_properties_file {
 		echo "app.server.tomcat.version=${tomcat_version}"
 		echo "build.timestamp=${_BUILD_TIMESTAMP}"
 		echo "bundle.checksum.sha512=$(cat "${bundle_file_name}.sha512")"
-		echo "bundle.url=https://releases-cdn.liferay.com/dxp/${_DXP_VERSION}/${bundle_file_name}"
+		echo "bundle.url=https://releases-cdn.liferay.com/dxp/${_DXP_VERSION}-${_BUILD_TIMESTAMP}/${bundle_file_name}"
 		echo "git.hash.liferay-docker=${_BUILDER_SHA}"
 		echo "git.hash.liferay-portal-ee=${_GIT_SHA}"
 		echo "liferay.docker.image=liferay/dxp:${_DXP_VERSION}"
