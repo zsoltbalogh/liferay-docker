@@ -40,7 +40,7 @@ function upload_boms {
 
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
-	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
+	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ] || [ -n "${LIFERAY_RELEASE_VERSION}" ]
 	then
 		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
 
