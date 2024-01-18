@@ -246,7 +246,7 @@ function lc_next_step {
 }
 
 function lc_time_run {
-	local run_id=$(echo "${@}" | tr " /" "_")
+	local run_id=$(echo "${@}" | tr " /:" "_")
 	local start_time=$(date +%s)
 
 	if [ -n "${LIFERAY_COMMON_LOG_DIR}" ]
@@ -272,6 +272,8 @@ function lc_time_run {
 	if [ "${exit_code}" == "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
 	then
 		echo -e "$(lc_date) < ${*}: \e[1;34mSkip\e[0m"
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	else
 		local seconds=$((end_time - start_time))
 
@@ -322,6 +324,8 @@ function _lc_init {
 	LIFERAY_COMMON_START_TIME=$(date +%s)
 	LIFERAY_COMMON_STEP_FILE=$(mktemp)
 
+	trap 'rm -f "${LIFERAY_COMMON_STEP_FILE}"' EXIT ERR SIGINT SIGTERM
+
 	declare -A LIFERAY_COMMON_BACKGROUND_PIDS
 
 	if [ -z "${LIFERAY_COMMON_DOWNLOAD_CACHE_DIR}" ]
@@ -334,6 +338,7 @@ function _lc_init {
 	LIFERAY_COMMON_EXIT_CODE_HELP=2
 	LIFERAY_COMMON_EXIT_CODE_OK=0
 	LIFERAY_COMMON_EXIT_CODE_SKIPPED=4
+	LIFERAY_COMMON_DOWNLOAD_MAX_TIME=1200
 
 	if (locale -a | grep -q en_US.utf8)
 	then
