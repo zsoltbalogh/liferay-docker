@@ -12,7 +12,7 @@ function adjust_product_info_json {
 
 	lc_time_run generate_product_info_json
 
-	lc_time_run upload_product_info_json
+	#lc_time_run upload_product_info_json
 }
 
 function check_usage {
