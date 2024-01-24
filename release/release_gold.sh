@@ -74,14 +74,14 @@ function promote_boms {
 }
 
 function promote_packages {
-	if (ssh -i lrdcom-vm-1 root@lrdcom-vm-1 ls -d "/www/releases.liferay.com/dxp/${_DXP_VERSION}" | grep -q "${_DXP_VERSION}" &>/dev/null)
+	if (ssh root@lrdcom-vm-1 ls -d "/www/releases.liferay.com/dxp/${_DXP_VERSION}" | grep -q "${_DXP_VERSION}" &>/dev/null)
 	then
 		lc_log ERROR "Release was already published."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	ssh -i lrdcom-vm-1 root@lrdcom-vm-1 cp -a "/www/releases.liferay.com/dxp/release-candidates/${_ARTIFACT_RC_VERSION}" "/www/releases.liferay.com/dxp/${_DXP_VERSION}"
+	ssh root@lrdcom-vm-1 cp -a "/www/releases.liferay.com/dxp/release-candidates/${_ARTIFACT_RC_VERSION}" "/www/releases.liferay.com/dxp/${_DXP_VERSION}"
 }
 
 main
