@@ -83,6 +83,8 @@ function lc_clone_repository {
 		git remote add upstream "git@github.com:liferay/${repository_name}.git"
 	fi
 
+	git config --add checkout.defaultRemote origin
+
 	git remote --verbose
 }
 
