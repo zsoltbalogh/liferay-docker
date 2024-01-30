@@ -88,8 +88,21 @@ function obfuscate_url {
 	java -jar "${_RELEASE_ROOT_DIR}/bin/com.liferay.workspace.bundle.url.codec.jar" "${url}" "${release_date}"
 }
 
+function update_product_info_json {
+	lc_time_run get_file_product_info_json
+
+	lc_time_run get_file_release_properties
+
+	lc_time_run generate_product_info_json
+
+	lc_time_run upload_product_info_json
+}
+
 function upload_product_info_json {
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
+
+	# TODO Fix after LPP-52427 is completed
+	lc_log INFO "Temporarily disabled until LPP-52427 is fixed." && exit "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 
 	lc_log INFO "Backing up to /www/releases.liferay.com/tools/workspace/.product_info.json.BACKUP."
 
