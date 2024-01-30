@@ -83,9 +83,7 @@ function update_product_info_json {
 
 	lc_log INFO "Uploading upload_product_info_json is disabled until LPP-52427 is fixed."
 
-	exit 0
-
-	lc_time_run upload_product_info_json
+	# lc_time_run upload_product_info_json
 }
 
 main
