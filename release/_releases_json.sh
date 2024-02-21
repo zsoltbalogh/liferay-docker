@@ -12,7 +12,7 @@ function upload_releases_json {
 
 	lc_log INFO "Backing up to /www/releases.liferay.com/releases.json.BACKUP."
 
-	ssh root@lrdcom-vm-1 cp -f "/www/releases.liferay.com/releases.json" "/www/releases.liferay.com/releases.json.BACKUP"
+	#ssh root@lrdcom-vm-1 cp -f "/www/releases.liferay.com/releases.json" "/www/releases.liferay.com/releases.json.BACKUP"
 
 	lc_log INFO "Uploading ${_PROMOTION_DIR}/releases.json to /www/releases.liferay.com/releases.json."
 
