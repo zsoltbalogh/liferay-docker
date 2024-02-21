@@ -39,15 +39,15 @@ function check_usage {
 function main {
 	check_usage
 
-	lc_time_run promote_packages
+#	lc_time_run promote_packages
 
-	lc_time_run tag_release
+#	lc_time_run tag_release
 
-	promote_boms
+#	promote_boms
 
-	lc_time_run generate_product_info_json
+#	lc_time_run generate_product_info_json
 
-	lc_time_run upload_product_info_json
+#	lc_time_run upload_product_info_json
 
 	lc_time_run regenerate_releases_json
 
@@ -114,7 +114,7 @@ function tag_release {
 					"tag": "${LIFERAY_RELEASE_VERSION}",
 					"type": "commit"
 				}
-			EOF
+EOF
 			--fail \
 			--header "Accept: application/vnd.github+json" \
 			--header "Authorization: Bearer ${LIFERAY_RELEASE_GITHUB_PAT}" \
