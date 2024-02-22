@@ -418,7 +418,7 @@ function prepare_release_dir {
 	then
 		7z x "${release7z}"
 	else
-		lc_download "https://releases-cdn.liferay.com/dxp/${_PRODUCT_VERSION}/$(lc_curl "https://releases-cdn.liferay.com/dxp/${_PRODUCT_VERSION}/.lfrrelease-tomcat-bundle")" liferay-dxp.7z
+		lc_download "https://release.liferay.com/dxp/${_PRODUCT_VERSION}/$(lc_curl "https://release.liferay.com/dxp/${_PRODUCT_VERSION}/.lfrrelease-tomcat-bundle")" liferay-dxp.7z
 
 		7z x ./liferay-dxp.7z
 

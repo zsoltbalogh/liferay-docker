@@ -85,7 +85,7 @@ function _process_product_version {
 		echo "        \"productVersion\": \"$(lc_get_property "${release_properties_file}" liferay.product.version)\","
 		echo "        \"promoted\": \"false\","
 		echo "        \"releaseKey\":\"${product_name}-${product_version}\","
-		echo "        \"url\": \"https://releases-cdn.liferay.com/${product_name}/${product_version}\""
+		echo "        \"url\": \"https://release.liferay.com/${product_name}/${product_version}\""
 		echo "    }"
 		echo "]"
 	) >> "$(lc_get_property "${release_properties_file}" release.date)-${product_name}-${product_version}.json"
