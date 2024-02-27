@@ -403,6 +403,9 @@ function lc_wait {
 }
 
 function _lc_init {
+	set -e
+	set -o pipefail
+
 	LIFERAY_COMMON_START_TIME=$(date +%s)
 	LIFERAY_COMMON_STEP_FILE=$(mktemp)
 
