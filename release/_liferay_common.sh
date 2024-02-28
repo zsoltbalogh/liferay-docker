@@ -338,14 +338,14 @@ function lc_time_run {
 
 	echo "$(lc_date) > ${*}"
 
+	local exit_code=0
+
 	if [ -z "${LIFERAY_COMMON_DEBUG_ENABLED}" ] && [ -n "${LIFERAY_COMMON_LOG_DIR}" ]
 	then
-		"${@}" &> "${log_file}"
+		"${@}" &> "${log_file}" || exit_code="${?}"
 	else
-		"${@}"
+		"${@}" || exit_code="${?}"
 	fi
-
-	local exit_code=${?}
 
 	local end_time=$(date +%s)
 
@@ -353,7 +353,7 @@ function lc_time_run {
 	then
 		echo -e "$(lc_date) < ${*}: \e[1;34mSkip\e[0m"
 
-		#return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+		return
 	else
 		local seconds=$((end_time - start_time))
 
