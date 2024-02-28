@@ -118,17 +118,15 @@ function clean_up_ignored_dxp_modules {
 		then
 			dxp_dir=$(echo "${ignored_dir}" | sed -e "s#apps/#dxp/apps/#")
 
-			lc_log INFO "Exclude ${dxp_dir} if it exists."
-
-			if [ ! -e "${dxp_dir}" ]
+			if [ -e "${dxp_dir}" ]
 			then
-				dxp_dir=""
-			else
-				lc_log INFO "Excluding ${dxp_dir} as well based on ${ignored_dir}."
+				lc_log INFO "Extend ignored directory list with ${dxp_dir} generated from ${ignored_dir}."
+
+				ignored_dir=("${ignored_dir}" "${dxp_dir}")
 			fi
 		fi
 
-		find "${ignored_dir}" "${dxp_dir}" -name bnd.bnd | while IFS= read -r ignored_bnd_bnd_file
+		find "${ignored_dir[@]}" -name bnd.bnd | while IFS= read -r ignored_bnd_bnd_file
 		do
 			local ignored_file=$(lc_get_property "${ignored_bnd_bnd_file}" Bundle-SymbolicName)
 
