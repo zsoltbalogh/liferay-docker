@@ -155,7 +155,7 @@ function _upload_to_nexus {
 	then
 		lc_log "Skipping the upload of ${file_path} to ${file_url} because it already exists."
 
-		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
 	else
 		lc_log INFO "Uploading ${file_path} to ${file_url}."
 
