@@ -158,8 +158,6 @@ function _upload_to_nexus {
 	local file_path="${1}"
 	local file_url="${2}"
 
-	lc_log INFO "Uploading ${file_path} to ${file_url}."
-
 	if (check_url "${file_url}")
 	then
 		lc_log "Skipping the upload of ${file_path} to ${file_url} because it already exists."
