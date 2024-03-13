@@ -164,7 +164,6 @@ function _upload_to_nexus {
 			--max-time 300 \
 			--retry 3 \
 			--retry-delay 10 \
-			--silent \
 			--upload-file "${file_path}" \
 			--user "${LIFERAY_RELEASE_NEXUS_REPOSITORY_USER}:${LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD}" \
 			"${file_url}"
