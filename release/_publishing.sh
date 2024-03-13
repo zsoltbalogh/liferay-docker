@@ -167,5 +167,14 @@ function _upload_to_nexus {
 			--upload-file "${file_path}" \
 			--user "${LIFERAY_RELEASE_NEXUS_REPOSITORY_USER}:${LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD}" \
 			"${file_url}"
+
+		local return_code="${?}"
+
+		if [ "${return_code}" -ne 0 ]
+		then
+			lc_log ERROR "Unable to upload ${file_path} to ${file_url}."
+
+			return "${return_code}"
+		fi
 	fi
 }
