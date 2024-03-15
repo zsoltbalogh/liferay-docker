@@ -68,9 +68,7 @@ function build_product {
 
 	rm -f apache-tomcat*
 
-	local war_files=( deploy/*.war )
-
-	if [ "${#war_files[@]}" -ge 1 ]
+	if (ls deploy/*.war > /dev/null)
 	then
 		mv deploy/*.war osgi/war
 	fi
