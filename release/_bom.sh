@@ -303,10 +303,10 @@ function generate_poms {
 
 	for pom in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party"
 	do
-		lc_download "https://repository.liferay.com/nexus/service/local/repositories/liferay-public-releases/content/com/liferay/portal/${pom}/7.4.13.u102/${pom}-7.4.13.u102.pom" "${pom}-${base_version}.pom"
+		lc_download "https://repository.liferay.com/nexus/service/local/repositories/liferay-public-releases/content/com/liferay/portal/${pom}/${base_version}/${pom}-${base_version}" "${pom}-${base_version}.pom"
 
 		sed \
-			-e "s#<version>7.4.13.u102</version>#<version>${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}</version>#" \
+			-e "s#<version>${base_version}</version>#<version>${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}</version>#" \
 			-e "s#<connection>scm:git:git@github.com:liferay/liferay-portal.git</connection>#<connection>scm:git:git@github.com:liferay/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}.git</connection>#" \
 			-e "s#<developerConnection>scm:git:git@github.com:liferay/liferay-portal.git</developerConnection>#<developerConnection>scm:git:git@github.com:liferay/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}.git</developerConnection>#" \
 			-e "s#<tag>.*</tag>#<tag>${_PRODUCT_VERSION}</tag>#" \
