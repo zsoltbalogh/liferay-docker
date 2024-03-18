@@ -139,7 +139,12 @@ function get_new_tags {
 
 	lc_log DEBUG "Copy tag files with to the log dir."
 
-	cp -f "${TAGS_FILE_DXP}" "${TAGS_FILE_EE}" "${TAGS_FILE_NEW}" "${LIFERAY_COMMON_LOG_DIR}/"
+	cp -f "${TAGS_FILE_DXP}" "${TAGS_FILE_EE}" "${LIFERAY_COMMON_LOG_DIR}/"
+
+	if [ -f "${TAGS_FILE_NEW}" ]
+	then
+		cp -f "${TAGS_FILE_NEW}" "${LIFERAY_COMMON_LOG_DIR}/"
+	fi
 }
 
 function print_help {
