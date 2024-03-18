@@ -214,7 +214,7 @@ pipeline {
 			rm -f logs/latest
 			ln -r -s "logs/${BUILD_NUMBER}" logs/latest
 			'''
-			
+
 			archiveArtifacts artifacts: 'logs/latest/*.txt'
 		}
 
