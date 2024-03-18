@@ -136,6 +136,10 @@ function get_new_tags {
 			echo "${tag_name}" >> "${TAGS_FILE_NEW}"
 		fi
 	done
+
+	lc_log DEBUG "Copy tag files with to the log dir."
+
+	cp -f "${TAGS_FILE_DXP}" "${TAGS_FILE_EE}" "${TAGS_FILE_NEW}" "${LIFERAY_COMMON_LOG_DIR}/"
 }
 
 function print_help {
@@ -181,7 +185,7 @@ function main {
 
 	for tag_name in $(cat "${TAGS_FILE_NEW}")
 	do
-		local branch_name=$(echo "${tag_name}" | sed -e "s/-.*//" -e 's@\(2023\.q[1-4]\).*@\1@')
+		local branch_name=$(echo "${tag_name}" | sed -e "s/-.*//" -e 's@\(202[3-9]\.q[1-4]\).*@\1@')
 
 		echo ""
 
