@@ -110,7 +110,7 @@ function package_release {
 
 	lc_cd "${_BUILD_DIR}/release"
 
-	7z a "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z" liferay-${LIFERAY_RELEASE_PRODUCT_NAME}
+	7z a "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z" "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 
 	echo "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z" > "${_BUILD_DIR}"/release/.lfrrelease-tomcat-bundle
 
@@ -118,7 +118,7 @@ function package_release {
 
 	zip -qr "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.zip" "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 
-	if [ -z "${LIFERAY_RELEASE_OUTPUT}" ]
+	if [ "${LIFERAY_RELEASE_OUTPUT}" != "nightly" ]
 	then
 		lc_cd "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 
@@ -134,7 +134,7 @@ function package_release {
 
 		lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
 
-		cp -a sql liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql
+		cp -a sql "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql"
 
 		zip -qr "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.zip" "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql" -i "*.sql"
 
