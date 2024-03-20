@@ -147,6 +147,13 @@ function upload_release {
 
 			gsutil cp "${_BUILD_DIR}/release/${file}" "gs://liferay-releases/${LIFERAY_RELEASE_PRODUCT_NAME}/${_PRODUCT_VERSION}"
 
+			if [ "${LIFERAY_RELEASE_OUTPUT}" = "nightly" ]
+			then
+				scp "${file}" root@lrdcom-vm-1:"/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}//nightly/${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}"
+
+				echo " - https://releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/nightly/${file}" >> ../output.md
+			fi
+
 			scp "${file}" root@lrdcom-vm-1:"/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}"
 
 			echo " - https://releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}/${file}" >> ../output.md
